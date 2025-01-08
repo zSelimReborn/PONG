@@ -5,6 +5,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
+#include <ctime>
+#include <cstdlib>
 
 #include "Shader.h"
 
@@ -14,22 +16,37 @@ constexpr int WINDOW_HEIGHT = 600;
 void FrameBufferSizeCallback(GLFWwindow* window, int w, int h);
 void ProcessInput(GLFWwindow* window, const float Delta);
 
+float Clamp(const float Value, const float Min, const float Max);
+void Print(const glm::vec3& Vector);
 unsigned int PrepareRectangle();
+
+glm::vec3 CheckBallCollision(const glm::vec3& PaddlePos, const glm::vec3& PaddleSize, const glm::vec3& BallPosition, const glm::vec3& BallSize, const glm::vec3& BallDirection, float& BallSpeed);
+void UpdateBall(glm::vec3& Position, const glm::vec3& Size, glm::vec3& CurrentDirection, int& OneScore, int& TwoScore);
 
 Shader MainShader;
 
 constexpr float MiddleScreenX = WINDOW_WIDTH / 2;
 constexpr float MiddleScreenY = WINDOW_HEIGHT / 2;
 
-constexpr float PlayerSpeed = 150.f;
+constexpr float PlayerSpeed = 300.f;
 glm::vec3 PlayerOnePos(MiddleScreenX - 350.f, WINDOW_HEIGHT / 2, 0.f);
 glm::vec3 PlayerTwoPos(MiddleScreenX + 350.f, WINDOW_HEIGHT / 2, 0.f);
-glm::vec3 PlayerSize(10.f, 50.f, 1.f);
+glm::vec3 PlayerSize(6.5f, 50.f, 1.f);
 
 glm::vec3 BrickBasePos(MiddleScreenX, 0.f, 0.f);
 glm::vec3 BrickSize(5.f, 20.f, 1.f);
 float BrickSpan = 30.f;
 int BrickQty = static_cast<int>(WINDOW_HEIGHT / (BrickSize.y));
+
+constexpr float BallBaseSpeed = 200.f;
+constexpr float BallMaxSpeed = 300.f;
+constexpr float BallSpeedStep = 5.f; 
+float BallSpeed = BallBaseSpeed;
+glm::vec3 BallBasePos(MiddleScreenX, MiddleScreenY, 1.f);
+glm::vec3 BallSize(10.f, 12.f, 1.f);
+glm::vec3 BallDirection(1.f, 0.5f, 0.f);
+
+int PlayerOneScore = 0, PlayerTwoScore = 0;
 
 int main(int argc, char** argv)
 {
@@ -55,6 +72,9 @@ int main(int argc, char** argv)
     }
 
     glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    srand(static_cast<unsigned>(time(nullptr)));
 
     try
     {
@@ -66,21 +86,22 @@ int main(int argc, char** argv)
         return -1;
     }
 
+    glEnable(GL_DEPTH_TEST);
 
     glm::mat4 Ortho = glm::ortho(0.f, static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT), 0.f, -1.0f, 1.0f);
     float White[] = { 1.f, 1.f, 1.f };
+    float Red[] = {1.f, 0.f, 0.f};
 
     MainShader.Use();
     MainShader.SetMatrix("projection", Ortho);
-    MainShader.SetColor("spriteColor", White);
 
     glm::mat4 Identity(1.0f);
 
     unsigned int Quad = PrepareRectangle();
 
-    double OldTime = glfwGetTime();
-    double CurrentTime = OldTime;
-    double Delta = CurrentTime - OldTime;
+    float OldTime = static_cast<float>(glfwGetTime());
+    float CurrentTime = OldTime;
+    float Delta = CurrentTime - OldTime;
 
     // Render loop
     while (!glfwWindowShouldClose(window))
@@ -94,10 +115,21 @@ int main(int argc, char** argv)
 
         ProcessInput(window, Delta);
 
+        MainShader.SetColor("spriteColor", White);
+
         glm::mat4 PlayerOneModel = glm::translate(Identity, PlayerOnePos);
         glm::mat4 PlayerTwoModel = glm::translate(Identity, PlayerTwoPos);
         PlayerOneModel = glm::scale(PlayerOneModel, PlayerSize);
         PlayerTwoModel = glm::scale(PlayerTwoModel, PlayerSize);
+
+        UpdateBall(BallBasePos, BallSize, BallDirection, PlayerOneScore, PlayerTwoScore);
+        BallDirection = CheckBallCollision(PlayerOnePos, PlayerSize, BallBasePos, BallSize, BallDirection, BallSpeed);
+        BallDirection = CheckBallCollision(PlayerTwoPos, PlayerSize, BallBasePos, BallSize, BallDirection, BallSpeed);
+
+        const glm::vec3 BallVelocity = (BallDirection * BallSpeed) * Delta;
+        BallBasePos += BallVelocity;
+        glm::mat4 BallModel = glm::translate(Identity, BallBasePos);
+        BallModel = glm::scale(BallModel, BallSize);
 
         glBindVertexArray(Quad);
 
@@ -107,6 +139,10 @@ int main(int argc, char** argv)
         MainShader.SetMatrix("model", PlayerTwoModel);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
+        MainShader.SetMatrix("model", BallModel);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        MainShader.SetColor("spriteColor", White);
         for (int i = 0; i < BrickQty; ++i)
         {
             glm::vec3 CurrentBrickPos = BrickBasePos;
@@ -119,6 +155,7 @@ int main(int argc, char** argv)
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
 
+        std::cout << "P1: " << PlayerOneScore << " | P2: " << PlayerTwoScore << "\n";
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -139,36 +176,70 @@ void ProcessInput(GLFWwindow* window, const float Delta)
         glfwSetWindowShouldClose(window, true);
     }
 
+    const float PlayerMovement = PlayerSpeed * Delta;
+    const glm::vec2 PlayerPaddleSizeOffset(PlayerSize.x / 2, PlayerSize.y / 2);
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        PlayerOnePos.y -= PlayerSpeed * Delta;
+        if ((PlayerOnePos.y - PlayerPaddleSizeOffset.y) - PlayerMovement > 0.f )
+        {
+            PlayerOnePos.y -= PlayerMovement;
+        }
     }
 
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        PlayerOnePos.y += PlayerSpeed * Delta;
+        if ((PlayerOnePos.y + PlayerPaddleSizeOffset.y) + PlayerMovement < WINDOW_HEIGHT)
+        {
+            PlayerOnePos.y += PlayerMovement;
+        }
     }
 
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
     {
-        PlayerTwoPos.y -= PlayerSpeed * Delta;
+        if ((PlayerTwoPos.y - PlayerPaddleSizeOffset.y) - PlayerMovement > 0.f)
+        {
+            PlayerTwoPos.y -= PlayerMovement;
+        }
     }
 
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
     {
-        PlayerTwoPos.y += PlayerSpeed * Delta;
+        if ((PlayerTwoPos.y + PlayerPaddleSizeOffset.y) + PlayerMovement < WINDOW_HEIGHT)
+        {
+            PlayerTwoPos.y += PlayerMovement;
+        }
     }
+}
+
+float Clamp(const float Value, const float Min, const float Max)
+{
+    return std::min(Max, std::max(Min, Value));
+}
+
+void Print(const glm::vec3& Vector)
+{
+    std::cout << "{x: " << Vector.x << ", y: " << Vector.y << ", z: " << Vector.z << "\n";
 }
 
 unsigned int PrepareRectangle()
 {
-    float rectangle[] = {
+    /* float rectangle[] = {
         -0.5f, 0.7f,
         -0.5f, -0.7f,
         0.5f, -0.7f,
 		-0.5f, 0.7f,
         0.5f, 0.7f,
         0.5f, -0.7f
+    }; */
+
+    float rectangle[] = {
+	    -0.5f, 0.5f,
+	    -0.5f, -0.5f,
+	    0.5f, -0.5f,
+	    -0.5f, 0.5f,
+	    0.5f, 0.5f,
+	    0.5f, -0.5f
     };
 
     unsigned int VAO = 0;
@@ -184,4 +255,59 @@ unsigned int PrepareRectangle()
     glEnableVertexAttribArray(0);
 
     return VAO;
+}
+
+glm::vec3 CheckBallCollision(const glm::vec3& PaddlePos, const glm::vec3& PaddleSize, const glm::vec3& BallPosition,
+	const glm::vec3& BallSize, const glm::vec3& BallDirection, float& BallSpeed)
+{
+    glm::vec3 NewDirection = BallDirection;
+    glm::vec2 PaddleSizeOffset(PaddleSize.x / 2, PaddleSize.y / 2);
+    glm::vec2 BallSizeOffset(BallSize.x / 2, BallSize.y / 2);
+
+    const float PaddleRight = PaddlePos.x + PaddleSizeOffset.x;
+    const float PaddleLeft = PaddlePos.x - PaddleSizeOffset.x;
+    const float PaddleTop = PaddlePos.y + PaddleSizeOffset.y;
+    const float PaddleBottom = PaddlePos.y - PaddleSizeOffset.y;
+
+    const float BallRight = BallPosition.x + BallSizeOffset.x;
+    const float BallLeft = BallPosition.x - BallSizeOffset.x;
+    const float BallTop = BallPosition.y + BallSizeOffset.y;
+    const float BallBottom = BallPosition.y - BallSizeOffset.y;
+
+	bool bCollidedX = (BallRight >= PaddleLeft && PaddleRight >= BallLeft);
+    bool bCollidedY = (BallBottom <= PaddleTop && PaddleBottom <= BallTop);
+
+    if (bCollidedX && bCollidedY)
+    {
+        NewDirection.x = -NewDirection.x;
+        BallSpeed = Clamp(BallSpeed + BallSpeedStep, BallBaseSpeed, BallMaxSpeed);
+    }
+
+    return NewDirection;
+}
+
+void UpdateBall(glm::vec3& Position, const glm::vec3& Size, glm::vec3& CurrentDirection, int& OneScore, int& TwoScore)
+{
+    bool bScored = false;
+
+    glm::vec2 SizeOffset(Size.x / 2, Size.y / 2);
+
+    if ((Position.x - SizeOffset.x) <= 0.f || (Position.x + SizeOffset.x) >= WINDOW_WIDTH)
+    {
+        if ((Position.x - SizeOffset.x) <= 0.f)
+            TwoScore++;
+        if ((Position.x + SizeOffset.x) >= WINDOW_WIDTH)
+            OneScore++;
+
+        Position = glm::vec3(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 1.f);
+        BallSpeed = BallBaseSpeed;
+
+        const float x = (OneScore > TwoScore) ? 1.f : -1.f;
+        CurrentDirection = glm::vec3(x, 0.8f, 0.f);
+    }
+
+    if ((Position.y - SizeOffset.y) <= 0.f || (Position.y + SizeOffset.y) >= WINDOW_HEIGHT)
+    {
+        CurrentDirection.y = -CurrentDirection.y;
+    }
 }
