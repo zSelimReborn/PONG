@@ -30,6 +30,9 @@
     <ClCompile Include="pk\Common.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="GameActor.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -39,6 +42,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="pk\Common.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="GameActor.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>

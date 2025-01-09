@@ -137,6 +137,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameActor.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pk\Common.cpp" />
@@ -144,6 +145,7 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameActor.h" />
     <ClInclude Include="pk\Common.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Window.h" />

@@ -5,9 +5,11 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
+#include <vector>
 
 #include "Shader.h"
 #include "Window.h"
+#include "GameActor.h"
 #include "pk/Common.h"
 
 constexpr int WINDOW_WIDTH = 800;
@@ -19,7 +21,6 @@ unsigned int PrepareRectangle();
 
 glm::vec3 CheckBallCollision(const glm::vec3& PaddlePos, const glm::vec3& PaddleSize, glm::vec3& BallPosition, const glm::vec3& BallSize, const glm::vec3& BallDirection, float& BallSpeed);
 void UpdateBall(glm::vec3& Position, const glm::vec3& Size, glm::vec3& CurrentDirection, int& OneScore, int& TwoScore);
-glm::vec3 CalculateNormal(const glm::vec3& Direction);
 
 Shader MainShader;
 
@@ -69,6 +70,16 @@ int main(int argc, char** argv)
         std::cout << "ERROR: UNABLE TO COMPILE SHADER: " << error.what() << "\n";
         glfwTerminate();
         return -1;
+    }
+
+    std::vector<GameActor> Bricks;
+    for (int i = 0; i < BrickQty; ++i)
+    {
+        glm::vec3 CurrentBrickPos = BrickBasePos;
+        CurrentBrickPos.y += (i * BrickSize.y) + (i * BrickSpan);
+
+        GameActor Brick(CurrentBrickPos, BrickSize);
+        Bricks.push_back(Brick);
     }
 
     glm::mat4 Ortho = glm::ortho(0.f, static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT), 0.f, -1.0f, 1.0f);
@@ -123,13 +134,9 @@ int main(int argc, char** argv)
         MainShader.SetMatrix("model", BallModel);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        for (int i = 0; i < BrickQty; ++i)
+        for (const GameActor& Brick : Bricks)
         {
-            glm::vec3 CurrentBrickPos = BrickBasePos;
-            CurrentBrickPos.y += (i * BrickSize.y) + (i * BrickSpan);
-
-            glm::mat4 BrickModel = glm::translate(Identity, CurrentBrickPos);
-            BrickModel = glm::scale(BrickModel, BrickSize);
+            glm::mat4 BrickModel = Brick.GetRenderModel();
 
             MainShader.SetMatrix("model", BrickModel);
             glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -294,33 +301,4 @@ void UpdateBall(glm::vec3& Position, const glm::vec3& Size, glm::vec3& CurrentDi
         Position.y += SizeOffset.y * glm::sign(Direction.y);
         CurrentDirection.y = -CurrentDirection.y;
     }
-}
-
-glm::vec3 CalculateNormal(const glm::vec3& Target)
-{
-    const glm::vec3 Compass[] = {
-        glm::vec3(-1.0f, 0.f, 0.f),
-        glm::vec3(-1.0f, 1.0f, 0.f),
-        glm::vec3(0.f, 1.0f, 0.f),
-        glm::vec3(1.0f, 1.0f, 0.f),
-        glm::vec3(1.0f, 0.0f, 0.f),
-        glm::vec3(1.0f, -1.0f, 0.f),
-        glm::vec3(0.f, -1.0f, 0.f),
-        glm::vec3(-1.0f, -1.0f, 0.f),
-    };
-
-    float MaxDot = -1.f;
-    glm::vec3 Normal = Compass[0];
-    const glm::vec3 TargetNormalized = glm::normalize(Target);
-    for (const glm::vec3& Direction : Compass)
-    {
-        const float CurrentDot = glm::dot(Direction, TargetNormalized);
-	    if (CurrentDot >= MaxDot)
-	    {
-            MaxDot = CurrentDot;
-            Normal = Direction;
-	    }
-    }
-
-    return Normal;
 }
