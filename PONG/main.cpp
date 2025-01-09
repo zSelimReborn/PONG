@@ -20,8 +20,9 @@ float Clamp(const float Value, const float Min, const float Max);
 void Print(const glm::vec3& Vector);
 unsigned int PrepareRectangle();
 
-glm::vec3 CheckBallCollision(const glm::vec3& PaddlePos, const glm::vec3& PaddleSize, const glm::vec3& BallPosition, const glm::vec3& BallSize, const glm::vec3& BallDirection, float& BallSpeed);
+glm::vec3 CheckBallCollision(const glm::vec3& PaddlePos, const glm::vec3& PaddleSize, glm::vec3& BallPosition, const glm::vec3& BallSize, const glm::vec3& BallDirection, float& BallSpeed);
 void UpdateBall(glm::vec3& Position, const glm::vec3& Size, glm::vec3& CurrentDirection, int& OneScore, int& TwoScore);
+glm::vec3 CalculateNormal(const glm::vec3& Direction);
 
 Shader MainShader;
 
@@ -106,7 +107,7 @@ int main(int argc, char** argv)
     // Render loop
     while (!glfwWindowShouldClose(window))
     {
-        CurrentTime = glfwGetTime();
+        CurrentTime = static_cast<float>(glfwGetTime());
         Delta = CurrentTime - OldTime;
         OldTime = CurrentTime;
 
@@ -126,7 +127,7 @@ int main(int argc, char** argv)
         BallDirection = CheckBallCollision(PlayerOnePos, PlayerSize, BallBasePos, BallSize, BallDirection, BallSpeed);
         BallDirection = CheckBallCollision(PlayerTwoPos, PlayerSize, BallBasePos, BallSize, BallDirection, BallSpeed);
 
-        const glm::vec3 BallVelocity = (BallDirection * BallSpeed) * Delta;
+        const glm::vec3 BallVelocity = (glm::normalize(BallDirection) * BallSpeed) * Delta;
         BallBasePos += BallVelocity;
         glm::mat4 BallModel = glm::translate(Identity, BallBasePos);
         BallModel = glm::scale(BallModel, BallSize);
@@ -155,7 +156,7 @@ int main(int argc, char** argv)
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
 
-        std::cout << "P1: " << PlayerOneScore << " | P2: " << PlayerTwoScore << "\n";
+        //std::cout << "P1: " << PlayerOneScore << " | P2: " << PlayerTwoScore << "\n";
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -257,12 +258,12 @@ unsigned int PrepareRectangle()
     return VAO;
 }
 
-glm::vec3 CheckBallCollision(const glm::vec3& PaddlePos, const glm::vec3& PaddleSize, const glm::vec3& BallPosition,
+glm::vec3 CheckBallCollision(const glm::vec3& PaddlePos, const glm::vec3& PaddleSize, glm::vec3& BallPosition,
 	const glm::vec3& BallSize, const glm::vec3& BallDirection, float& BallSpeed)
 {
     glm::vec3 NewDirection = BallDirection;
-    glm::vec2 PaddleSizeOffset(PaddleSize.x / 2, PaddleSize.y / 2);
-    glm::vec2 BallSizeOffset(BallSize.x / 2, BallSize.y / 2);
+    glm::vec2 PaddleSizeOffset(PaddleSize.x / 2.0f, PaddleSize.y / 2.0f);
+    glm::vec2 BallSizeOffset(BallSize.x / 2.0f, BallSize.y / 2.0f);
 
     const float PaddleRight = PaddlePos.x + PaddleSizeOffset.x;
     const float PaddleLeft = PaddlePos.x - PaddleSizeOffset.x;
@@ -279,7 +280,23 @@ glm::vec3 CheckBallCollision(const glm::vec3& PaddlePos, const glm::vec3& Paddle
 
     if (bCollidedX && bCollidedY)
     {
+        /* glm::vec3 Left(-1.0f, 0.f, 0.f);
+        glm::vec3 Right(-1.0f, 0.f, 0.f);
+
+        glm::vec3 Normal = (glm::sign(BallDirection.x) >= 1.0f) ? Left : Right;
+        NewDirection = glm::reflect(glm::normalize(NewDirection), Normal); */
+
+        const glm::vec3 Difference = BallPosition - PaddlePos;
+        const float Distance = Difference.y;
+        const float Percentage = Distance / PaddleSizeOffset.y;
+
         NewDirection.x = -NewDirection.x;
+        NewDirection.y = Percentage;
+
+        float adjusted = (glm::sign(NewDirection.x) >= 1.0f) ? PaddleRight : PaddleLeft;
+        adjusted += glm::sign(NewDirection.x) * BallSize.x;
+        BallPosition.x = adjusted;
+
         BallSpeed = Clamp(BallSpeed + BallSpeedStep, BallBaseSpeed, BallMaxSpeed);
     }
 
@@ -306,8 +323,41 @@ void UpdateBall(glm::vec3& Position, const glm::vec3& Size, glm::vec3& CurrentDi
         CurrentDirection = glm::vec3(x, 0.8f, 0.f);
     }
 
+    // Position ball inside board and invert direction
+    const glm::vec3 Middle(MiddleScreenX, MiddleScreenY, 1.f);
+    const glm::vec3 Direction = glm::normalize(Middle - Position);
     if ((Position.y - SizeOffset.y) <= 0.f || (Position.y + SizeOffset.y) >= WINDOW_HEIGHT)
     {
+        Position.y += SizeOffset.y * glm::sign(Direction.y);
         CurrentDirection.y = -CurrentDirection.y;
     }
+}
+
+glm::vec3 CalculateNormal(const glm::vec3& Target)
+{
+    const glm::vec3 Compass[] = {
+        glm::vec3(-1.0f, 0.f, 0.f),
+        glm::vec3(-1.0f, 1.0f, 0.f),
+        glm::vec3(0.f, 1.0f, 0.f),
+        glm::vec3(1.0f, 1.0f, 0.f),
+        glm::vec3(1.0f, 0.0f, 0.f),
+        glm::vec3(1.0f, -1.0f, 0.f),
+        glm::vec3(0.f, -1.0f, 0.f),
+        glm::vec3(-1.0f, -1.0f, 0.f),
+    };
+
+    float MaxDot = -1.f;
+    glm::vec3 Normal = Compass[0];
+    const glm::vec3 TargetNormalized = glm::normalize(Target);
+    for (const glm::vec3& Direction : Compass)
+    {
+        const float CurrentDot = glm::dot(Direction, TargetNormalized);
+	    if (CurrentDot >= MaxDot)
+	    {
+            MaxDot = CurrentDot;
+            Normal = Direction;
+	    }
+    }
+
+    return Normal;
 }
