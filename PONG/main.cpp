@@ -5,19 +5,16 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
-#include <ctime>
-#include <cstdlib>
 
 #include "Shader.h"
+#include "Window.h"
+#include "pk/Common.h"
 
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
 
-void FrameBufferSizeCallback(GLFWwindow* window, int w, int h);
-void ProcessInput(GLFWwindow* window, const float Delta);
+void ProcessInput(const Window& window, const float Delta);
 
-float Clamp(const float Value, const float Min, const float Max);
-void Print(const glm::vec3& Vector);
 unsigned int PrepareRectangle();
 
 glm::vec3 CheckBallCollision(const glm::vec3& PaddlePos, const glm::vec3& PaddleSize, glm::vec3& BallPosition, const glm::vec3& BallSize, const glm::vec3& BallDirection, float& BallSpeed);
@@ -51,31 +48,18 @@ int PlayerOneScore = 0, PlayerTwoScore = 0;
 
 int main(int argc, char** argv)
 {
-    glfwInit(); // Initialize GLFW to default
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // OpenGL major version 3
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // OpenGL minor version 3
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // OpenGL Core profile
+    Window w(WINDOW_WIDTH, WINDOW_HEIGHT, "PONG");
 
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "PONG", nullptr, nullptr);
-    if (window == nullptr)
+    try
     {
-        std::cout << "Failed to create GLFW window" << "\n";
+        w.Initialize();
+        w.SetInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    } catch (const Window::Error& Error)
+    {
+        std::cout << Error.what() << "\n";
         glfwTerminate();
         return -1;
     }
-    glfwMakeContextCurrent(window);
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << "\n";
-        glfwTerminate();
-        return -1;
-    }
-
-    glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    srand(static_cast<unsigned>(time(nullptr)));
 
     try
     {
@@ -87,11 +71,7 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    glEnable(GL_DEPTH_TEST);
-
     glm::mat4 Ortho = glm::ortho(0.f, static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT), 0.f, -1.0f, 1.0f);
-    float White[] = { 1.f, 1.f, 1.f };
-    float Red[] = {1.f, 0.f, 0.f};
 
     MainShader.Use();
     MainShader.SetMatrix("projection", Ortho);
@@ -105,18 +85,18 @@ int main(int argc, char** argv)
     float Delta = CurrentTime - OldTime;
 
     // Render loop
-    while (!glfwWindowShouldClose(window))
+    while (!w.ShouldClose())
     {
         CurrentTime = static_cast<float>(glfwGetTime());
         Delta = CurrentTime - OldTime;
         OldTime = CurrentTime;
 
-        glClearColor(0.f, 0.f, 0.f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        w.ClearColor(Colors::BlackAlpha);
+        w.ClearFlag(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ProcessInput(window, Delta);
+        ProcessInput(w, Delta);
 
-        MainShader.SetColor("spriteColor", White);
+        MainShader.SetColor("spriteColor", Colors::White);
 
         glm::mat4 PlayerOneModel = glm::translate(Identity, PlayerOnePos);
         glm::mat4 PlayerTwoModel = glm::translate(Identity, PlayerTwoPos);
@@ -143,7 +123,6 @@ int main(int argc, char** argv)
         MainShader.SetMatrix("model", BallModel);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        MainShader.SetColor("spriteColor", White);
         for (int i = 0; i < BrickQty; ++i)
         {
             glm::vec3 CurrentBrickPos = BrickBasePos;
@@ -157,38 +136,32 @@ int main(int argc, char** argv)
         }
 
         //std::cout << "P1: " << PlayerOneScore << " | P2: " << PlayerTwoScore << "\n";
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        w.EndFrame();
     }
 
     glfwTerminate();
     return 0;
 }
 
-void FrameBufferSizeCallback(GLFWwindow* window, int w, int h)
+void ProcessInput(const Window& window, const float Delta)
 {
-    glad_glViewport(0, 0, w, h);
-}
-
-void ProcessInput(GLFWwindow* window, const float Delta)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if (window.IsPressed(GLFW_KEY_ESCAPE))
     {
-        glfwSetWindowShouldClose(window, true);
+        window.ShouldClose(true);
     }
 
     const float PlayerMovement = PlayerSpeed * Delta;
     const glm::vec2 PlayerPaddleSizeOffset(PlayerSize.x / 2, PlayerSize.y / 2);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    if (window.IsPressed(GLFW_KEY_W))
     {
-        if ((PlayerOnePos.y - PlayerPaddleSizeOffset.y) - PlayerMovement > 0.f )
+        if ((PlayerOnePos.y - PlayerPaddleSizeOffset.y) - PlayerMovement > 0.f)
         {
             PlayerOnePos.y -= PlayerMovement;
         }
     }
 
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    if (window.IsPressed(GLFW_KEY_S))
     {
         if ((PlayerOnePos.y + PlayerPaddleSizeOffset.y) + PlayerMovement < WINDOW_HEIGHT)
         {
@@ -196,7 +169,7 @@ void ProcessInput(GLFWwindow* window, const float Delta)
         }
     }
 
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    if (window.IsPressed(GLFW_KEY_UP))
     {
         if ((PlayerTwoPos.y - PlayerPaddleSizeOffset.y) - PlayerMovement > 0.f)
         {
@@ -204,23 +177,13 @@ void ProcessInput(GLFWwindow* window, const float Delta)
         }
     }
 
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    if (window.IsPressed(GLFW_KEY_DOWN))
     {
         if ((PlayerTwoPos.y + PlayerPaddleSizeOffset.y) + PlayerMovement < WINDOW_HEIGHT)
         {
             PlayerTwoPos.y += PlayerMovement;
         }
     }
-}
-
-float Clamp(const float Value, const float Min, const float Max)
-{
-    return std::min(Max, std::max(Min, Value));
-}
-
-void Print(const glm::vec3& Vector)
-{
-    std::cout << "{x: " << Vector.x << ", y: " << Vector.y << ", z: " << Vector.z << "\n";
 }
 
 unsigned int PrepareRectangle()
@@ -297,7 +260,7 @@ glm::vec3 CheckBallCollision(const glm::vec3& PaddlePos, const glm::vec3& Paddle
         adjusted += glm::sign(NewDirection.x) * BallSize.x;
         BallPosition.x = adjusted;
 
-        BallSpeed = Clamp(BallSpeed + BallSpeedStep, BallBaseSpeed, BallMaxSpeed);
+        BallSpeed = Math::Clamp(BallSpeed + BallSpeedStep, BallBaseSpeed, BallMaxSpeed);
     }
 
     return NewDirection;
