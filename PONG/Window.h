@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <memory>
+#include <glm/glm.hpp>
 #include <stdexcept>
 
 struct GLFWwindow;
@@ -14,6 +14,7 @@ public:
 
 	int GetWidth() const;
 	int GetHeight() const;
+	glm::vec2 GetScreenCenter() const;
 	std::string GetTitle() const;
 	GLFWwindow* GetWindow() const;
 
@@ -27,6 +28,8 @@ public:
 	void ClearFlag(int Flags) const;
 
 	void SetInputMode(const int Mode, const int Value) const;
+
+	virtual ~Window();
 
 	class Error : public std::runtime_error
 	{

@@ -1,5 +1,7 @@
 #include "Window.h"
 
+#include <iostream>
+
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
@@ -41,6 +43,11 @@ int Window::GetWidth() const
 int Window::GetHeight() const
 {
 	return Height;
+}
+
+glm::vec2 Window::GetScreenCenter() const
+{
+    return {Width / 2, Height / 2};
 }
 
 std::string Window::GetTitle() const
@@ -92,6 +99,11 @@ void Window::ClearFlag(int Flags) const
 void Window::SetInputMode(const int Mode, const int Value) const
 {
 	glfwSetInputMode(WindowPtr, Mode, Value);
+}
+
+Window::~Window()
+{
+    glfwTerminate();
 }
 
 void Window::FrameBufferSizeCallback(GLFWwindow* Window, int _Width, int _Height)

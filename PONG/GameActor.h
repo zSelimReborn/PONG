@@ -1,6 +1,10 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <memory>
+
+class Window;
+class Game;
 
 struct Transform
 {
@@ -26,23 +30,33 @@ struct BoundingBox
 class GameActor
 {
 public:
+	GameActor(const Transform& _Transform);
 	GameActor(const glm::vec3& _Location, const glm::vec3 _Size);
+
+	void SetGame(Game* _Game);
 
 	Transform GetTransform() const;
 	glm::vec3 GetLocation() const;
 	glm::vec3 GetSize() const;
-	glm::vec3 GetVelocity() const;
+	void Move(const glm::vec3& Delta);
 
 	glm::mat4 GetRenderModel() const;
 	BoundingBox GetBoundingBox() const;
 
+	bool Collide(const GameActor& Other) const;
+
 	virtual void Begin();
 	virtual void Update(const float Delta);
+	virtual void Input(const Window& Window, const float Delta);
 
 	virtual ~GameActor() = default;
 
+protected:
+	Game* GetGame() const;
+	void SetLocation(const glm::vec3 NewLocation);
+
 private:
-	Transform Transform;
-	glm::vec3 Velocity;
+	Transform mTransform;
+	Game* mGame;
 };
 
