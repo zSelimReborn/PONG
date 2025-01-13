@@ -1,17 +1,15 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
-#include <vector>
 
 #include "Game.h"
 #include "Shader.h"
 #include "Window.h"
 #include "GameActor.h"
-#include "pk/Common.h"
+#include "pk/Font.h"
 
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
@@ -56,6 +54,10 @@ int main(int argc, char** argv)
     } catch (const Shader::ShaderCompileError& ShaderError)
     {
         std::cout << "ERROR: UNABLE TO COMPILE SHADER: " << ShaderError.what() << "\n";
+        return -1;
+    } catch (const Font::LoadError& FontError)
+    {
+        std::cout << FontError.what() << "\n";
         return -1;
     }
 

@@ -6,6 +6,7 @@
 
 #include "Window.h"
 #include "pk/Common.h"
+#include "pk/Font.h"
 
 Game::Game(Window* _Window, const Transform& PlayerOneTransform, const Transform& PlayerTwoTransform,
            const float PlayerSpeed, const Transform& BallTransform, const glm::vec3& BallDirection, const float BallSpeed,
@@ -27,6 +28,9 @@ Game::Game(Window* _Window, const Transform& PlayerOneTransform, const Transform
 void Game::Begin()
 {
 	PrepareRenderQuad();
+
+	MainFont = std::make_unique<Font>("Fonts/Exan.ttf", "Exan", Projection);
+	MainFont->Load(36);
 
 	MainShader.Compile("main.vert", "main.frag");
 	MainShader.Use();
@@ -76,6 +80,11 @@ void Game::Input(const float Delta)
 		WindowPtr->ShouldClose(true);
 	}
 
+	if (WindowPtr->IsPressed(GLFW_KEY_ENTER))
+	{
+		WindowPtr->Maximize();
+	}
+
 	PlayerOne.Input(*WindowPtr, Delta);
 	PlayerTwo.Input(*WindowPtr, Delta);
 }
@@ -95,6 +104,8 @@ void Game::CheckCollisions(const float Delta)
 
 void Game::RenderGame() const
 {
+	MainShader.Use();
+
 	Render(PlayerOne);
 	Render(PlayerTwo);
 	Render(Ball);
@@ -102,6 +113,22 @@ void Game::RenderGame() const
 	{
 		Render(Brick);
 	}
+
+	RenderScore();
+}
+
+void Game::RenderScore() const
+{
+	std::string OneScore(std::to_string(PlayerOneScore));
+	std::string TwoScore(std::to_string(PlayerTwoScore));
+
+	glm::vec2 ScreenCenter(GetScreenCenter());
+
+	const float* OneColor = (PlayerOneScore > PlayerTwoScore) ? Colors::Red : Colors::White;
+	const float* SecondColor = (PlayerTwoScore > PlayerOneScore) ? Colors::Red : Colors::White;
+
+	MainFont->Render(OneScore, glm::vec2(ScreenCenter.x - 100.f, 100.f), 1.0f, OneColor);
+	MainFont->Render(TwoScore, glm::vec2(ScreenCenter.x + 100.f, 100.f), 1.0f, SecondColor);
 }
 
 void Game::Render(const GameActor& Actor) const

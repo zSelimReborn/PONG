@@ -18,6 +18,7 @@ public:
 	std::string GetTitle() const;
 	GLFWwindow* GetWindow() const;
 
+	void Maximize() const;
 	void ShouldClose(int Value) const;
 	int ShouldClose() const;
 	void EndFrame() const;

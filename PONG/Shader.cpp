@@ -33,7 +33,7 @@ void Shader::Compile(const std::string& vertexShaderPath, const std::string& fra
     bIsCompiled = true;
 }
 
-void Shader::Use()
+void Shader::Use() const
 {
     glUseProgram(shaderId);
 }

@@ -32,7 +32,10 @@ void Window::Initialize()
     }
 
     glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
+
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 int Window::GetWidth() const
@@ -58,6 +61,11 @@ std::string Window::GetTitle() const
 GLFWwindow* Window::GetWindow() const
 {
     return WindowPtr;
+}
+
+void Window::Maximize() const
+{
+    glfwMaximizeWindow(WindowPtr);
 }
 
 void Window::ShouldClose(int Value) const

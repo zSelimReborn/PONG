@@ -1,14 +1,15 @@
 #pragma once
 
-#include <memory>
 #include <glm/glm.hpp>
 #include <vector>
+#include <memory>
 
 #include "Player.h"
 #include "Ball.h"
 #include "Shader.h"
 
 class Window;
+class Font;
 
 class Game
 {
@@ -43,6 +44,7 @@ private:
 	void CheckCollisions(const float Delta);
 
 	void RenderGame() const;
+	void RenderScore() const;
 	void Render(const GameActor& Actor) const;
 
 	void PrepareRenderQuad();
@@ -66,5 +68,7 @@ private:
 
 	int PlayerOneScore;
 	int PlayerTwoScore;
+
+	std::unique_ptr<Font> MainFont;
 };
 

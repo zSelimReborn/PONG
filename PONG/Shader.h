@@ -15,7 +15,7 @@ public:
 	unsigned int GetShaderId() const;
 
 	void Compile(const std::string& vertexShader, const std::string& fragmentShader);
-	void Use();
+	void Use() const;
 
 	void SetBool(const std::string& name, const bool value) const;
 	void SetInt(const std::string& name, const int value) const;
