@@ -30,6 +30,10 @@ void Game::Begin()
 {
 	PrepareRenderQuad();
 
+	PlayerOne.SetTexture("Sprites/first_paddle.png");
+	PlayerTwo.SetTexture("Sprites/second_paddle.png");
+	Ball.SetTexture("Sprites/ball.png");
+
 	MainFont = std::make_unique<Font>("Fonts/Exan.ttf", "Exan", Projection);
 	MainFont->Load(36);
 
@@ -49,7 +53,7 @@ void Game::Frame()
 {
 	UpdateDelta();
 
-	WindowPtr->ClearColor(Colors::BlackAlpha);
+	WindowPtr->ClearColor(Colors::LightBlack);
 	WindowPtr->ClearFlag(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Input(Delta);
@@ -175,8 +179,13 @@ void Game::Render(const GameActor& Actor) const
 
 	glBindVertexArray(QuadId);
 	MainShader.SetMatrix("model", Actor.GetRenderModel());
+
+	glActiveTexture(GL_TEXTURE0);
+	Actor.BindTexture();
+
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
+	Actor.UnBindTexture();
 }
 
 int Game::GetScreenWidth() const
@@ -226,12 +235,12 @@ void Game::UpdateDelta()
 void Game::PrepareRenderQuad()
 {
 	float VertexData[] = {
-		-0.5f, 0.5f,
-		-0.5f, -0.5f,
-		0.5f, -0.5f,
-		-0.5f, 0.5f,
-		0.5f, 0.5f,
-		0.5f, -0.5f
+		-0.5f, 0.5f, 0.f, 1.f,
+		-0.5f, -0.5f, 0.f, 0.f,
+		0.5f, -0.5f, 1.f, 0.f,
+		-0.5f, 0.5f, 0.f, 1.f,
+		0.5f, 0.5f, 1.f, 1.f,
+		0.5f, -0.5f, 1.f, 0.f
 	};
 
 	unsigned int VAO = 0;
@@ -243,7 +252,7 @@ void Game::PrepareRenderQuad()
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData), VertexData, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	QuadId = VAO;
@@ -265,6 +274,7 @@ void Game::InitializeBricks()
 		CurrentBrickPos.y += (i * BrickSize.y) + (i * BrickSpan);
 
 		GameActor Brick(CurrentBrickPos, BrickSize);
+		Brick.SetTexture("Sprites/brick.png");
 		Bricks.push_back(Brick);
 	}
 }

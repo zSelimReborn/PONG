@@ -141,9 +141,11 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameActor.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="image_loader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pk\Common.cpp" />
     <ClCompile Include="pk\Font.cpp" />
+    <ClCompile Include="pk\Texture.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -154,6 +156,7 @@
     <ClInclude Include="GameActor.h" />
     <ClInclude Include="pk\Common.h" />
     <ClInclude Include="pk\Font.h" />
+    <ClInclude Include="pk\Texture.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Window.h" />
@@ -166,6 +169,10 @@
   </ItemGroup>
   <ItemGroup>
     <Font Include="Fonts\Exan.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Sprites\first_paddle.png" />
+    <Image Include="Sprites\second_paddle.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3,6 +3,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "pk/Texture.h"
+
 Transform::Transform()
 	: Location(0.f), Size(0.f)
 {
@@ -55,6 +57,11 @@ void GameActor::SetGame(Game* _Game)
 	mGame = _Game;
 }
 
+void GameActor::SetTexture(const std::string& Path)
+{
+	mTexture = std::make_shared<Texture>(Path, GL_RGBA, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+}
+
 Transform GameActor::GetTransform() const
 {
 	return mTransform;
@@ -88,6 +95,22 @@ BoundingBox GameActor::GetBoundingBox() const
 {
 	BoundingBox Box(mTransform);
 	return Box;
+}
+
+void GameActor::BindTexture() const
+{
+	if (mTexture)
+	{
+		mTexture->Bind();
+	}
+}
+
+void GameActor::UnBindTexture() const
+{
+	if (mTexture)
+	{
+		mTexture->UnBind();
+	}
 }
 
 bool GameActor::Collide(const GameActor& Other) const

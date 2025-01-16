@@ -45,6 +45,12 @@
     <ClCompile Include="pk\Font.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="pk\Texture.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="image_loader.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -71,6 +77,9 @@
     <ClInclude Include="pk\Font.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="pk\Texture.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="main.vert" />
@@ -80,5 +89,13 @@
   </ItemGroup>
   <ItemGroup>
     <Font Include="Fonts\Exan.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Sprites\first_paddle.png">
+      <Filter>File di risorse</Filter>
+    </Image>
+    <Image Include="Sprites\second_paddle.png">
+      <Filter>File di risorse</Filter>
+    </Image>
   </ItemGroup>
 </Project>
