@@ -18,4 +18,5 @@ namespace Colors
 	const float Black[] = { 0.f, 0.f, 0.f };
 	const float BlackAlpha[] = { 0.f, 0.f, 0.f, 1.f };
 	const float Red[] = { 1.f, 0.f, 0.f };
+	const float Green[] = { 0.f, 1.f, 0.f };
 }

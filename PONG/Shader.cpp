@@ -92,8 +92,9 @@ void Shader::Initialize(const std::string& vertexShaderPath, const std::string& 
     glGetProgramiv(shaderId, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(shaderId, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::LINKING_FAILED\n" << infoLog << std::endl;
-        throw ShaderCompileError();
+        std::string error = "[Shader] - Linking failed: ";
+        error += infoLog;
+        throw ShaderCompileError(error);
     }
 
     glDeleteShader(vertexShaderId);
@@ -114,9 +115,10 @@ std::string Shader::GetShaderContent(const std::string& shaderFile) const
 
         return content.str();
     }
-    catch (std::ifstream::failure e) {
-        std::cout << "SHADER::ERROR::READ::CONTENT " << e.what() << std::endl;
-        throw ShaderCompileError();
+    catch (const std::ifstream::failure& e) {
+        std::string error = "[Shader] - Error reading content: ";
+        error += e.what();
+        throw ShaderCompileError(error);
     }
 }
 
@@ -136,8 +138,9 @@ unsigned int Shader::CompileShader(const GLenum type, const std::string& content
     if (!success)
     {
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
-        throw ShaderCompileError();
+        std::string error = "[Shader] - Compilation failed: ";
+        error += infoLog;
+        throw ShaderCompileError(error);
     }
 
     return shader;

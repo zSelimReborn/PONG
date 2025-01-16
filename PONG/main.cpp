@@ -6,7 +6,6 @@
 #include <iostream>
 
 #include "Game.h"
-#include "Shader.h"
 #include "Window.h"
 #include "GameActor.h"
 #include "pk/Font.h"
@@ -20,6 +19,7 @@ constexpr float BALL_BASE_SPEED = 200.f;
 constexpr float BALL_MAX_SPEED = 500.f;
 constexpr float BALL_SPEED_INCREMENT = 50.f;
 
+constexpr int WIN_SCORE = 5;
 
 int main(int argc, char** argv)
 {
@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 
     Transform BallTransform(BallBasePos, BallSize);
 
-    Game g(&w, PlayerOne, PlayerTwo, PLAYER_SPEED, BallTransform, BallDirection, BALL_BASE_SPEED, BALL_SPEED_INCREMENT, BALL_MAX_SPEED);
+    Game g(&w, PlayerOne, PlayerTwo, PLAYER_SPEED, BallTransform, BallDirection, BALL_BASE_SPEED, BALL_SPEED_INCREMENT, BALL_MAX_SPEED, WIN_SCORE);
 
     try
     {
@@ -47,17 +47,9 @@ int main(int argc, char** argv)
         w.SetInputMode(GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         g.Begin();
-    } catch (const Window::Error& Error)
+    } catch (const std::runtime_error& Error)
     {
-        std::cout << Error.what() << "\n";
-        return -1;
-    } catch (const Shader::ShaderCompileError& ShaderError)
-    {
-        std::cout << "ERROR: UNABLE TO COMPILE SHADER: " << ShaderError.what() << "\n";
-        return -1;
-    } catch (const Font::LoadError& FontError)
-    {
-        std::cout << FontError.what() << "\n";
+        std::cout << "Game Error: " << Error.what() << "\n";
         return -1;
     }
 

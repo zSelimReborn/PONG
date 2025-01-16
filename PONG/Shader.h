@@ -24,7 +24,10 @@ public:
 	void SetColor(const std::string& name, const float values[]) const;
 	void SetMatrix(const std::string& name, const glm::mat4& matrix) const;
 
-	class ShaderCompileError : public std::exception {};
+	class ShaderCompileError : public std::runtime_error
+	{
+		using std::runtime_error::runtime_error;
+	};
 
 private:
 	void Initialize(const std::string&, const std::string&);

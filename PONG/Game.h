@@ -11,6 +11,13 @@
 class Window;
 class Font;
 
+enum class GameState
+{
+	MATCH,
+	WIN,
+	PAUSE
+};
+
 class Game
 {
 public:
@@ -22,7 +29,8 @@ public:
 		const glm::vec3& BallDirection,
 		const float BallSpeed,
 		const float BallSpeedIncrement,
-		const float BallMaxSpeed
+		const float BallMaxSpeed,
+		const int _WinScore
 	);
 
 	void Begin();
@@ -45,6 +53,7 @@ private:
 
 	void RenderGame() const;
 	void RenderScore() const;
+	void RenderWinScreen() const;
 	void Render(const GameActor& Actor) const;
 
 	void PrepareRenderQuad();
@@ -68,7 +77,10 @@ private:
 
 	int PlayerOneScore;
 	int PlayerTwoScore;
+	int WinScore;
 
 	std::unique_ptr<Font> MainFont;
+
+	GameState State;
 };
 

@@ -1,6 +1,7 @@
 #include "Game.h"
 
 #include <iostream>
+#include <sstream>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -10,10 +11,10 @@
 
 Game::Game(Window* _Window, const Transform& PlayerOneTransform, const Transform& PlayerTwoTransform,
            const float PlayerSpeed, const Transform& BallTransform, const glm::vec3& BallDirection, const float BallSpeed,
-           const float BallSpeedIncrement, const float BallMaxSpeed)
+           const float BallSpeedIncrement, const float BallMaxSpeed, const int _WinScore)
 		: PlayerOne(PlayerOneTransform, PlayerSpeed, GLFW_KEY_W, GLFW_KEY_S), PlayerTwo(PlayerTwoTransform, PlayerSpeed, GLFW_KEY_UP, GLFW_KEY_DOWN),
 			Ball(BallTransform, BallDirection, BallSpeed),
-			WindowPtr(_Window), Projection(0.f), PlayerOneScore(0), PlayerTwoScore(0)
+			WindowPtr(_Window), Projection(0.f), PlayerOneScore(0), PlayerTwoScore(0), WinScore(_WinScore), State(GameState::MATCH)
 {
 	PlayerOne.SetGame(this);
 	PlayerTwo.SetGame(this);
@@ -51,8 +52,19 @@ void Game::Frame()
 	WindowPtr->ClearColor(Colors::BlackAlpha);
 	WindowPtr->ClearFlag(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Update(Delta);
+	Input(Delta);
+
+	if (State == GameState::MATCH)
+	{
+		Update(Delta);
+	}
+
 	RenderGame();
+
+	if (State == GameState::WIN)
+	{
+		RenderWinScreen();
+	}
 
 	WindowPtr->EndFrame();
 }
@@ -64,8 +76,6 @@ bool Game::ShouldClose() const
 
 void Game::Update(const float Delta)
 {
-	Input(Delta);
-
 	PlayerOne.Update(Delta);
 	PlayerTwo.Update(Delta);
 	Ball.Update(Delta);
@@ -85,8 +95,18 @@ void Game::Input(const float Delta)
 		WindowPtr->Maximize();
 	}
 
-	PlayerOne.Input(*WindowPtr, Delta);
-	PlayerTwo.Input(*WindowPtr, Delta);
+	if (WindowPtr->IsPressed(GLFW_KEY_SPACE))
+	{
+		PlayerOneScore = 0;
+		PlayerTwoScore = 0;
+		State = GameState::MATCH;
+	}
+
+	if (State == GameState::MATCH)
+	{
+		PlayerOne.Input(*WindowPtr, Delta);
+		PlayerTwo.Input(*WindowPtr, Delta);
+	}
 }
 
 void Game::CheckCollisions(const float Delta)
@@ -108,10 +128,15 @@ void Game::RenderGame() const
 
 	Render(PlayerOne);
 	Render(PlayerTwo);
-	Render(Ball);
-	for (const GameActor& Brick : Bricks)
+
+	if (State == GameState::MATCH)
 	{
-		Render(Brick);
+		Render(Ball);
+
+		for (const GameActor& Brick : Bricks)
+		{
+			Render(Brick);
+		}
 	}
 
 	RenderScore();
@@ -119,16 +144,29 @@ void Game::RenderGame() const
 
 void Game::RenderScore() const
 {
-	std::string OneScore(std::to_string(PlayerOneScore));
-	std::string TwoScore(std::to_string(PlayerTwoScore));
+	const std::string OneScore(std::to_string(PlayerOneScore));
+	const std::string TwoScore(std::to_string(PlayerTwoScore));
 
-	glm::vec2 ScreenCenter(GetScreenCenter());
+	const glm::vec2 ScreenCenter(GetScreenCenter());
 
-	const float* OneColor = (PlayerOneScore > PlayerTwoScore) ? Colors::Red : Colors::White;
-	const float* SecondColor = (PlayerTwoScore > PlayerOneScore) ? Colors::Red : Colors::White;
+	const float* OneColor = (PlayerOneScore > PlayerTwoScore) ? Colors::Green : Colors::White;
+	const float* SecondColor = (PlayerTwoScore > PlayerOneScore) ? Colors::Green : Colors::White;
 
 	MainFont->Render(OneScore, glm::vec2(ScreenCenter.x - 100.f, 100.f), 1.0f, OneColor);
 	MainFont->Render(TwoScore, glm::vec2(ScreenCenter.x + 100.f, 100.f), 1.0f, SecondColor);
+}
+
+void Game::RenderWinScreen() const
+{
+	const std::string ReplayText = "Press SPACE to play again";
+	const std::string Winner = (PlayerOneScore > PlayerTwoScore) ? "One" : "Two";
+	std::ostringstream WinTextStream;
+	WinTextStream << "Player " << Winner << " WON";
+	const std::string WinText = WinTextStream.str();
+
+	const glm::vec2 ScreenCenter(GetScreenCenter());
+	MainFont->Render(WinText, glm::vec2(ScreenCenter.x - 170.f, ScreenCenter.y - 75.f), 1.0f, Colors::White);
+	MainFont->Render(ReplayText, glm::vec2(ScreenCenter.x - 270.f, ScreenCenter.y - 25.f), 1.0f, Colors::White);
 }
 
 void Game::Render(const GameActor& Actor) const
@@ -170,6 +208,11 @@ void Game::IncrementScore(bool bPlayerOneScored)
 	else
 	{
 		PlayerTwoScore++;
+	}
+
+	if (PlayerOneScore >= WinScore || PlayerTwoScore >= WinScore)
+	{
+		State = GameState::WIN;
 	}
 }
 
