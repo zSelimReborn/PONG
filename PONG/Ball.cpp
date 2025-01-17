@@ -46,19 +46,21 @@ float Ball::GetSpeed() const
 void Ball::Bounce(const GameActor& Paddle)
 {
     glm::vec3 Location = GetLocation();
+    const BoundingBox Box = Paddle.GetBoundingBox();
+
     const glm::vec3 Difference = Location - Paddle.GetLocation();
     const float Distance = Difference.y;
-    const float Percentage = Distance / Paddle.GetBoundingBox().ScaleOffset.y;
+    const float Percentage = Distance / Box.ScaleOffset.y;
 
     Direction.x = -Direction.x;
     Direction.y = Percentage;
 
     // Adjust position after collision
-    const float PaddleRight = Paddle.GetBoundingBox().Right();
-    const float PaddleLeft = Paddle.GetBoundingBox().Left();
+    const float PaddleRight = Box.Right();
+    const float PaddleLeft = Box.Left();
 
     float AdjustingAmount = (glm::sign(Direction.x) >= 1.0f) ? PaddleRight : PaddleLeft;
-    AdjustingAmount += glm::sign(Direction.x) * GetSize().x;
+    AdjustingAmount += glm::sign(Direction.x) * (Box.ScaleOffset.x + 5.0f);
     Location.x = AdjustingAmount;
 
     SetLocation(Location);
@@ -97,7 +99,8 @@ void Ball::Update(const float Delta)
     const glm::vec3 DirectionToCenter = glm::normalize(Middle - Location);
     if ((Location.y - Box.ScaleOffset.y) <= 0.f || (Location.y + Box.ScaleOffset.y) >= ScreenHeight)
     {
-        Location.y += Box.ScaleOffset.y * glm::sign(DirectionToCenter.y);
+        const float Base = (Location.y - Box.ScaleOffset.y) <= 0.f ? 0.f : ScreenHeight;
+        Location.y = Base + (Box.ScaleOffset.y * glm::sign(DirectionToCenter.y));
         Direction.y = -Direction.y;
     }
 
