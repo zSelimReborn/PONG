@@ -51,6 +51,9 @@
     <ClCompile Include="pk\Window.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="pk\Emitter.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pk\Common.h">
@@ -83,12 +86,17 @@
     <ClInclude Include="pk\Window.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="pk\Emitter.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\main.frag" />
     <None Include="Assets\Shaders\main.vert" />
     <None Include="Assets\Shaders\text.frag" />
     <None Include="Assets\Shaders\text.vert" />
+    <None Include="Assets\Shaders\particle.vert" />
+    <None Include="Assets\Shaders\particle.frag" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="Assets\Fonts\Exan.ttf" />

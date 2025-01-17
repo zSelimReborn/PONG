@@ -33,9 +33,8 @@ void Window::Initialize()
 
     glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
 
-    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    SetBlendFunction(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 int Window::GetWidth() const
@@ -102,6 +101,11 @@ void Window::ClearColor(const float Color[]) const
 void Window::ClearFlags(int Flags) const
 {
     glClear(Flags);
+}
+
+void Window::SetBlendFunction(int Key, int Value) const
+{
+    glBlendFunc(Key, Value);
 }
 
 void Window::SetInputMode(const int Mode, const int Value) const

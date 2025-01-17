@@ -10,6 +10,7 @@
 
 class Window;
 class Font;
+class Emitter;
 
 enum class GameState
 {
@@ -54,6 +55,7 @@ private:
 	void RenderGame() const;
 	void RenderScore() const;
 	void RenderWinScreen() const;
+	void RenderBallParticles() const;
 	void Render(const GameActor& Actor) const;
 
 	void PrepareRenderQuad();
@@ -64,6 +66,7 @@ private:
 	Player PlayerTwo;
 	Ball Ball;
 	std::vector<GameActor> Bricks;
+	std::shared_ptr<Emitter> BallEmitter;
 
 	Window* WindowPtr;
 

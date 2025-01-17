@@ -16,4 +16,7 @@ namespace Assets
 
 	const std::string TextVertexShader = "Assets/Shaders/text.vert";
 	const std::string TextFragmentShader = "Assets/Shaders/text.frag";
+
+	const std::string ParticleVertexShader = "Assets/Shaders/particle.vert";
+	const std::string ParticleFragmentShader = "Assets/Shaders/particle.frag";
 }

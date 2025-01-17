@@ -144,6 +144,7 @@
     <ClCompile Include="image_loader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pk\Common.cpp" />
+    <ClCompile Include="pk\Emitter.cpp" />
     <ClCompile Include="pk\Font.cpp" />
     <ClCompile Include="pk\Shader.cpp" />
     <ClCompile Include="pk\Texture.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameActor.h" />
     <ClInclude Include="pk\Common.h" />
+    <ClInclude Include="pk\Emitter.h" />
     <ClInclude Include="pk\Font.h" />
     <ClInclude Include="pk\Shader.h" />
     <ClInclude Include="pk\Texture.h" />
@@ -165,6 +167,8 @@
   <ItemGroup>
     <None Include="Assets\Shaders\main.frag" />
     <None Include="Assets\Shaders\main.vert" />
+    <None Include="Assets\Shaders\particle.frag" />
+    <None Include="Assets\Shaders\particle.vert" />
     <None Include="Assets\Shaders\text.frag" />
     <None Include="Assets\Shaders\text.vert" />
   </ItemGroup>

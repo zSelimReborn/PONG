@@ -21,6 +21,9 @@ public:
 	void SetInt(const std::string& name, const int value) const;
 	void SetFloat(const std::string& name, const float value) const;
 	void SetFloat(const std::string& name, const float values[]) const;
+	void SetFloat(const std::string& name, const glm::vec2& value) const;
+	void SetFloat(const std::string& name, const glm::vec3& value) const;
+	void SetFloat(const std::string& name, const glm::vec4& value) const;
 	void SetColor(const std::string& name, const float values[]) const;
 	void SetMatrix(const std::string& name, const glm::mat4& matrix) const;
 

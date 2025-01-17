@@ -8,6 +8,7 @@
 #include "pk/Window.h"
 #include "pk/Common.h"
 #include "pk/Font.h"
+#include "pk/Emitter.h"
 #include "Assets.h"
 
 Game::Game(Window* _Window, const Transform& PlayerOneTransform, const Transform& PlayerTwoTransform,
@@ -41,6 +42,10 @@ void Game::Begin()
 	MainShader.Compile(Assets::MainVertexShader, Assets::MainFragmentShader);
 	MainShader.Use();
 	MainShader.SetMatrix("projection", Projection);
+
+	BallEmitter = std::make_shared<Emitter>(Assets::ParticleVertexShader, Assets::ParticleFragmentShader, Assets::BallSprite, 
+		0.1f, 0.5f, 800, 2, Projection
+	);
 
 	OldTime = static_cast<float>(glfwGetTime());
 
@@ -84,6 +89,8 @@ void Game::Update(const float Delta)
 	PlayerOne.Update(Delta);
 	PlayerTwo.Update(Delta);
 	Ball.Update(Delta);
+
+	BallEmitter->Update(Delta, Ball.GetLocation(), -Ball.GetDirection());
 
 	CheckCollisions(Delta);
 }
@@ -129,6 +136,8 @@ void Game::CheckCollisions(const float Delta)
 
 void Game::RenderGame() const
 {
+	RenderBallParticles();
+
 	MainShader.Use();
 
 	Render(PlayerOne);
@@ -172,6 +181,16 @@ void Game::RenderWinScreen() const
 	const glm::vec2 ScreenCenter(GetScreenCenter());
 	MainFont->Render(WinText, glm::vec2(ScreenCenter.x - 170.f, ScreenCenter.y - 75.f), 1.0f, Colors::White);
 	MainFont->Render(ReplayText, glm::vec2(ScreenCenter.x - 270.f, ScreenCenter.y - 25.f), 1.0f, Colors::White);
+}
+
+void Game::RenderBallParticles() const
+{
+	if (State == GameState::MATCH)
+	{
+		WindowPtr->SetBlendFunction(GL_SRC_ALPHA, GL_ONE);
+		BallEmitter->Render();
+		WindowPtr->SetBlendFunction(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 }
 
 void Game::Render(const GameActor& Actor) const

@@ -28,6 +28,8 @@ public:
 	void ClearColor(const float Color[]) const;
 	void ClearFlags(int Flags) const;
 
+	void SetBlendFunction(int Key, int Value) const;
+
 	void SetInputMode(const int Mode, const int Value) const;
 
 	virtual ~Window();
