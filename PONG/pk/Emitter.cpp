@@ -89,6 +89,16 @@ void Emitter::Render() const
 	ParticleTexture->UnBind();
 }
 
+void Emitter::Reset()
+{
+	for (int i = 0; i < Pool.size(); ++i)
+	{
+		Pool[i]->Life = 0.f;
+	}
+
+	LastInactive = 0;
+}
+
 Emitter::~Emitter()
 {
 	for (int i = 0; i < PoolCapacity; ++i)

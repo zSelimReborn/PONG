@@ -60,7 +60,7 @@ void Ball::Bounce(const GameActor& Paddle)
     const float PaddleLeft = Box.Left();
 
     float AdjustingAmount = (glm::sign(Direction.x) >= 1.0f) ? PaddleRight : PaddleLeft;
-    AdjustingAmount += glm::sign(Direction.x) * (Box.ScaleOffset.x + 5.0f);
+    AdjustingAmount += glm::sign(Direction.x) * (Box.ScaleOffset.x + 2.0f);
     Location.x = AdjustingAmount;
 
     SetLocation(Location);

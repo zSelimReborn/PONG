@@ -31,6 +31,7 @@ public:
 
 	void Update(const float Delta, const glm::vec3& Position, const glm::vec3& Direction);
 	void Render() const;
+	void Reset();
 
 	~Emitter();
 

@@ -112,6 +112,8 @@ void Game::Input(const float Delta)
 		PlayerOneScore = 0;
 		PlayerTwoScore = 0;
 		State = GameState::MATCH;
+
+		BallEmitter->Reset();
 	}
 
 	if (State == GameState::MATCH)
