@@ -8,6 +8,7 @@
 #include "Window.h"
 #include "pk/Common.h"
 #include "pk/Font.h"
+#include "Assets.h"
 
 Game::Game(Window* _Window, const Transform& PlayerOneTransform, const Transform& PlayerTwoTransform,
            const float PlayerSpeed, const Transform& BallTransform, const glm::vec3& BallDirection, const float BallSpeed,
@@ -30,14 +31,14 @@ void Game::Begin()
 {
 	PrepareRenderQuad();
 
-	PlayerOne.SetTexture("Sprites/first_paddle.png");
-	PlayerTwo.SetTexture("Sprites/second_paddle.png");
-	Ball.SetTexture("Sprites/ball.png");
+	PlayerOne.SetTexture(Assets::FirstPaddleSprite);
+	PlayerTwo.SetTexture(Assets::SecondPaddleSprite);
+	Ball.SetTexture(Assets::BallSprite);
 
-	MainFont = std::make_unique<Font>("Fonts/Exan.ttf", "Exan", Projection);
+	MainFont = std::make_unique<Font>(Assets::FontPath, "Exan", Projection, Assets::TextVertexShader, Assets::TextFragmentShader);
 	MainFont->Load(36);
 
-	MainShader.Compile("main.vert", "main.frag");
+	MainShader.Compile(Assets::MainVertexShader, Assets::MainFragmentShader);
 	MainShader.Use();
 	MainShader.SetMatrix("projection", Projection);
 
@@ -54,7 +55,7 @@ void Game::Frame()
 	UpdateDelta();
 
 	WindowPtr->ClearColor(Colors::LightBlack);
-	WindowPtr->ClearFlag(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	WindowPtr->ClearFlags(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Input(Delta);
 
@@ -70,7 +71,7 @@ void Game::Frame()
 		RenderWinScreen();
 	}
 
-	WindowPtr->EndFrame();
+	WindowPtr->CloseFrame();
 }
 
 bool Game::ShouldClose() const
@@ -99,7 +100,7 @@ void Game::Input(const float Delta)
 		WindowPtr->Maximize();
 	}
 
-	if (WindowPtr->IsPressed(GLFW_KEY_SPACE))
+	if (WindowPtr->IsPressed(GLFW_KEY_SPACE) && State == GameState::WIN)
 	{
 		PlayerOneScore = 0;
 		PlayerTwoScore = 0;
@@ -274,7 +275,7 @@ void Game::InitializeBricks()
 		CurrentBrickPos.y += (i * BrickSize.y) + (i * BrickSpan);
 
 		GameActor Brick(CurrentBrickPos, BrickSize);
-		Brick.SetTexture("Sprites/brick.png");
+		Brick.SetTexture(Assets::BrickSprite);
 		Bricks.push_back(Brick);
 	}
 }

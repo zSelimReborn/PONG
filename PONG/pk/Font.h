@@ -21,7 +21,7 @@ struct Character {
 class Font
 {
 public:
-	Font(const std::string& _Path, const std::string& _Name, const glm::mat4& _Projection);
+	Font(const std::string& _Path, const std::string& _Name, const glm::mat4& _Projection, const std::string& VertShader, const std::string& FragShader);
 
 	std::string GetName() const;
 	std::string GetPath() const;

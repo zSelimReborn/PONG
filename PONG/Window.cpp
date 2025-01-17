@@ -12,7 +12,7 @@ Window::Window(const int _Width, const int _Height, const std::string& _Title)
 
 void Window::Initialize()
 {
-    glfwInit(); // Initialize GLFW to default
+    glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // OpenGL major version 3
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3); // OpenGL minor version 3
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // OpenGL Core profile
@@ -78,7 +78,7 @@ int Window::ShouldClose() const
     return glfwWindowShouldClose(WindowPtr);
 }
 
-void Window::EndFrame() const
+void Window::CloseFrame() const
 {
     glfwSwapBuffers(WindowPtr);
     glfwPollEvents();
@@ -99,7 +99,7 @@ void Window::ClearColor(const float Color[]) const
     glClearColor(Color[0], Color[1], Color[2], Color[3]);
 }
 
-void Window::ClearFlag(int Flags) const
+void Window::ClearFlags(int Flags) const
 {
     glClear(Flags);
 }

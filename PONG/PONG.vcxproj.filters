@@ -80,21 +80,30 @@
     <ClInclude Include="pk\Texture.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="Assets.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="main.vert" />
-    <None Include="main.frag" />
-    <None Include="text.vert" />
-    <None Include="text.frag" />
+    <None Include="Assets\Shaders\main.frag" />
+    <None Include="Assets\Shaders\main.vert" />
+    <None Include="Assets\Shaders\text.frag" />
+    <None Include="Assets\Shaders\text.vert" />
   </ItemGroup>
   <ItemGroup>
-    <Font Include="Fonts\Exan.ttf" />
+    <Font Include="Assets\Fonts\Exan.ttf" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Sprites\first_paddle.png">
+    <Image Include="Assets\Sprites\ball.png">
       <Filter>File di risorse</Filter>
     </Image>
-    <Image Include="Sprites\second_paddle.png">
+    <Image Include="Assets\Sprites\brick.png">
+      <Filter>File di risorse</Filter>
+    </Image>
+    <Image Include="Assets\Sprites\first_paddle.png">
+      <Filter>File di risorse</Filter>
+    </Image>
+    <Image Include="Assets\Sprites\second_paddle.png">
       <Filter>File di risorse</Filter>
     </Image>
   </ItemGroup>

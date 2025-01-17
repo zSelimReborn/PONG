@@ -151,6 +151,7 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Assets.h" />
     <ClInclude Include="Ball.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameActor.h" />
@@ -162,17 +163,19 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="main.frag" />
-    <None Include="main.vert" />
-    <None Include="text.frag" />
-    <None Include="text.vert" />
+    <None Include="Assets\Shaders\main.frag" />
+    <None Include="Assets\Shaders\main.vert" />
+    <None Include="Assets\Shaders\text.frag" />
+    <None Include="Assets\Shaders\text.vert" />
   </ItemGroup>
   <ItemGroup>
-    <Font Include="Fonts\Exan.ttf" />
+    <Font Include="Assets\Fonts\Exan.ttf" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Sprites\first_paddle.png" />
-    <Image Include="Sprites\second_paddle.png" />
+    <Image Include="Assets\Sprites\ball.png" />
+    <Image Include="Assets\Sprites\brick.png" />
+    <Image Include="Assets\Sprites\first_paddle.png" />
+    <Image Include="Assets\Sprites\second_paddle.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

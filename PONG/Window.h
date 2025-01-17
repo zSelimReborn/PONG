@@ -21,12 +21,12 @@ public:
 	void Maximize() const;
 	void ShouldClose(int Value) const;
 	int ShouldClose() const;
-	void EndFrame() const;
+	void CloseFrame() const;
 	bool IsPressed(int Key) const;
 	bool IsReleased(int Key) const;
 
 	void ClearColor(const float Color[]) const;
-	void ClearFlag(int Flags) const;
+	void ClearFlags(int Flags) const;
 
 	void SetInputMode(const int Mode, const int Value) const;
 

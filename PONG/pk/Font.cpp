@@ -3,11 +3,11 @@
 
 #include <glad/glad.h>
 
-Font::Font(const std::string& _Path, const std::string& _Name, const glm::mat4& _Projection)
+Font::Font(const std::string& _Path, const std::string& _Name, const glm::mat4& _Projection, const std::string& VertShader, const std::string& FragShader)
 	: Path(_Path), Name(_Name), Size(14), Projection(_Projection)
 {
     TextShader = std::make_unique<Shader>();
-    TextShader->Compile("text.vert", "text.frag");
+    TextShader->Compile(VertShader, FragShader);
     TextShader->Use();
     TextShader->SetMatrix("projection", Projection);
 
@@ -118,7 +118,6 @@ void Font::LoadCharacters(FT_Face& Face)
         // load character glyph 
         if (FT_Load_Char(Face, c, FT_LOAD_RENDER))
         {
-            //std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
             continue;
         }
 
