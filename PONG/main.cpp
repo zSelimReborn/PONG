@@ -5,10 +5,10 @@
 
 #include <iostream>
 
-#include "Game.h"
-#include "Window.h"
-#include "GameActor.h"
+#include "pk/Window.h"
 #include "pk/Font.h"
+#include "Game.h"
+#include "GameActor.h"
 
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;

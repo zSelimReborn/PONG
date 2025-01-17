@@ -145,10 +145,10 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="pk\Common.cpp" />
     <ClCompile Include="pk\Font.cpp" />
+    <ClCompile Include="pk\Shader.cpp" />
     <ClCompile Include="pk\Texture.cpp" />
+    <ClCompile Include="pk\Window.cpp" />
     <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Assets.h" />
@@ -157,10 +157,10 @@
     <ClInclude Include="GameActor.h" />
     <ClInclude Include="pk\Common.h" />
     <ClInclude Include="pk\Font.h" />
+    <ClInclude Include="pk\Shader.h" />
     <ClInclude Include="pk\Texture.h" />
+    <ClInclude Include="pk\Window.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\main.frag" />

@@ -1,5 +1,5 @@
 #include "Font.h"
-#include "../Shader.h"
+#include "Shader.h"
 
 #include <glad/glad.h>
 

@@ -6,7 +6,7 @@
 
 #include "Player.h"
 #include "Ball.h"
-#include "Shader.h"
+#include "pk/Shader.h"
 
 class Window;
 class Font;

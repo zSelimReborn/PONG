@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Window.h"
+#include "pk/Window.h"
 #include "pk/Common.h"
 #include "pk/Font.h"
 #include "Assets.h"

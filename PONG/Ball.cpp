@@ -1,7 +1,6 @@
 #include "Ball.h"
 
 #include "Game.h"
-#include "Window.h"
 #include "pk/Common.h"
 
 Ball::Ball(const Transform& _Transform, const glm::vec3& _Direction, const float _Speed)
