@@ -54,6 +54,9 @@
     <ClCompile Include="pk\Emitter.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="pk\SoundEngine.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pk\Common.h">
@@ -89,6 +92,9 @@
     <ClInclude Include="pk\Emitter.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="pk\SoundEngine.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\main.frag" />
@@ -114,5 +120,16 @@
     <Image Include="Assets\Sprites\second_paddle.png">
       <Filter>File di risorse</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Assets\Sounds\goal.wav">
+      <Filter>File di risorse</Filter>
+    </Media>
+    <Media Include="Assets\Sounds\pong.wav">
+      <Filter>File di risorse</Filter>
+    </Media>
+    <Media Include="Assets\Sounds\win_sound.wav">
+      <Filter>File di risorse</Filter>
+    </Media>
   </ItemGroup>
 </Project>

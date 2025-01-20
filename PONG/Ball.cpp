@@ -1,16 +1,20 @@
 #include "Ball.h"
 
+#include "Assets.h"
 #include "Game.h"
 #include "pk/Common.h"
+#include "pk/SoundEngine.h"
 
 Ball::Ball(const Transform& _Transform, const glm::vec3& _Direction, const float _Speed)
 	: GameActor(_Transform), Direction(_Direction), BaseSpeed(_Speed), Speed(_Speed), SpeedIncrement(_Speed / 10.f), MaxSpeed(500.f)
 {
+    Initialize();
 }
 
 Ball::Ball(const glm::vec3& _Location, const glm::vec3 _Size, const glm::vec3& _Direction, const float _Speed)
 	: GameActor(_Location, _Size), Direction(_Direction), BaseSpeed(_Speed), Speed(_Speed), SpeedIncrement(_Speed / 10.f), MaxSpeed(500.f)
 {
+    Initialize();
 }
 
 glm::vec3 Ball::GetDirection() const
@@ -45,6 +49,8 @@ float Ball::GetSpeed() const
 
 void Ball::Bounce(const GameActor& Paddle)
 {
+    PlayHitSound();
+
     glm::vec3 Location = GetLocation();
     const BoundingBox Box = Paddle.GetBoundingBox();
 
@@ -88,6 +94,7 @@ void Ball::Update(const float Delta)
 
         IncrementScore(bPlayerOneScored);
         Reset();
+        SoundEngine::Get().Play(Assets::GoalSound);
 
         const float x = (bPlayerOneScored) ? 1.f : -1.f;
         Direction = glm::vec3(x, 0.8f, 0.f);
@@ -102,12 +109,20 @@ void Ball::Update(const float Delta)
         const float Base = (Location.y - Box.ScaleOffset.y) <= 0.f ? 0.f : ScreenHeight;
         Location.y = Base + (Box.ScaleOffset.y * glm::sign(DirectionToCenter.y));
         Direction.y = -Direction.y;
+
+        PlayHitSound();
     }
 
     const glm::vec3 BallVelocity = (glm::normalize(Direction) * Speed) * Delta;
     Location += BallVelocity;
 
     SetLocation(Location);
+}
+
+void Ball::Initialize()
+{
+    SoundEngine::Get().Load(Assets::PongSound);
+    SoundEngine::Get().Load(Assets::GoalSound);
 }
 
 void Ball::Reset()
@@ -126,4 +141,9 @@ void Ball::IncrementScore(bool bPlayerOne) const
 void Ball::IncrementSpeed()
 {
     Speed = Math::Clamp(Speed + SpeedIncrement, BaseSpeed, MaxSpeed);
+}
+
+void Ball::PlayHitSound()
+{
+    SoundEngine::Get().Play(Assets::PongSound);
 }

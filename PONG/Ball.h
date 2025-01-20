@@ -22,9 +22,13 @@ public:
 	virtual void Update(const float Delta) override;
 
 private:
+	void Initialize();
+
 	void Reset();
 	void IncrementScore(bool bPlayerOne) const;
 	void IncrementSpeed();
+
+	void PlayHitSound();
 
 	glm::vec3 Direction;
 	float BaseSpeed;

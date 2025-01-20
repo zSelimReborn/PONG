@@ -116,7 +116,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freetyped.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fmodL_vc.lib;fmodstudioL_vc.lib;freetyped.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,7 +133,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freetyped.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>fmodL_vc.lib;fmodstudioL_vc.lib;freetyped.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -147,6 +147,7 @@
     <ClCompile Include="pk\Emitter.cpp" />
     <ClCompile Include="pk\Font.cpp" />
     <ClCompile Include="pk\Shader.cpp" />
+    <ClCompile Include="pk\SoundEngine.cpp" />
     <ClCompile Include="pk\Texture.cpp" />
     <ClCompile Include="pk\Window.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="pk\Emitter.h" />
     <ClInclude Include="pk\Font.h" />
     <ClInclude Include="pk\Shader.h" />
+    <ClInclude Include="pk\SoundEngine.h" />
     <ClInclude Include="pk\Texture.h" />
     <ClInclude Include="pk\Window.h" />
     <ClInclude Include="Player.h" />
@@ -180,6 +182,11 @@
     <Image Include="Assets\Sprites\brick.png" />
     <Image Include="Assets\Sprites\first_paddle.png" />
     <Image Include="Assets\Sprites\second_paddle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Assets\Sounds\goal.wav" />
+    <Media Include="Assets\Sounds\pong.wav" />
+    <Media Include="Assets\Sounds\win_sound.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

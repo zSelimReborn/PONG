@@ -9,6 +9,7 @@
 #include "pk/Common.h"
 #include "pk/Font.h"
 #include "pk/Emitter.h"
+#include "pk/SoundEngine.h"
 #include "Assets.h"
 
 Game::Game(Window* _Window, const Transform& PlayerOneTransform, const Transform& PlayerTwoTransform,
@@ -47,6 +48,8 @@ void Game::Begin()
 		0.1f, 0.5f, 800, 2, Projection
 	);
 
+	SoundEngine::Get().Load(Assets::WinSound);
+
 	OldTime = static_cast<float>(glfwGetTime());
 
 	InitializeBricks();
@@ -58,6 +61,7 @@ void Game::Begin()
 void Game::Frame()
 {
 	UpdateDelta();
+	SoundEngine::Get().Update(Delta);
 
 	WindowPtr->ClearColor(Colors::LightBlack);
 	WindowPtr->ClearFlags(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -244,6 +248,7 @@ void Game::IncrementScore(bool bPlayerOneScored)
 	if (PlayerOneScore >= WinScore || PlayerTwoScore >= WinScore)
 	{
 		State = GameState::WIN;
+		SoundEngine::Get().Play(Assets::WinSound);
 	}
 }
 

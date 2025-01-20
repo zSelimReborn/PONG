@@ -4,19 +4,25 @@
 
 namespace Assets
 {
-	const std::string FontPath = "Assets/Fonts/Exan.ttf";
+	const std::string BasePath = "Assets/";
 
-	const std::string FirstPaddleSprite = "Assets/Sprites/first_paddle.png";
-	const std::string SecondPaddleSprite = "Assets/Sprites/second_paddle.png";
-	const std::string BallSprite = "Assets/Sprites/ball.png";
-	const std::string BrickSprite = "Assets/Sprites/brick.png";
+	const std::string FontPath = BasePath + "Fonts/Exan.ttf";
 
-	const std::string MainVertexShader = "Assets/Shaders/main.vert";
-	const std::string MainFragmentShader = "Assets/Shaders/main.frag";
+	const std::string FirstPaddleSprite = BasePath + "Sprites/first_paddle.png";
+	const std::string SecondPaddleSprite = BasePath + "Sprites/second_paddle.png";
+	const std::string BallSprite = BasePath + "Sprites/ball.png";
+	const std::string BrickSprite = BasePath + "Sprites/brick.png";
 
-	const std::string TextVertexShader = "Assets/Shaders/text.vert";
-	const std::string TextFragmentShader = "Assets/Shaders/text.frag";
+	const std::string MainVertexShader = BasePath + "Shaders/main.vert";
+	const std::string MainFragmentShader = BasePath + "Shaders/main.frag";
 
-	const std::string ParticleVertexShader = "Assets/Shaders/particle.vert";
-	const std::string ParticleFragmentShader = "Assets/Shaders/particle.frag";
+	const std::string TextVertexShader = BasePath + "Shaders/text.vert";
+	const std::string TextFragmentShader = BasePath + "Shaders/text.frag";
+
+	const std::string ParticleVertexShader = BasePath + "Shaders/particle.vert";
+	const std::string ParticleFragmentShader = BasePath + "Shaders/particle.frag";
+
+	const std::string PongSound = BasePath + "Sounds/pong.wav";
+	const std::string GoalSound = BasePath + "Sounds/goal.wav";
+	const std::string WinSound = BasePath + "Sounds/win_sound.wav";
 }
