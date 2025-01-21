@@ -1,9 +1,13 @@
 #include "Ball.h"
 
+#include <iostream>
+
 #include "Assets.h"
 #include "Game.h"
 #include "pk/Common.h"
 #include "pk/SoundEngine.h"
+
+using namespace ParticlePattern;
 
 Ball::Ball(const Transform& _Transform, const glm::vec3& _Direction, const float _Speed)
 	: GameActor(_Transform), Direction(_Direction), BaseSpeed(_Speed), Speed(_Speed), SpeedIncrement(_Speed / 10.f), MaxSpeed(500.f)
@@ -71,6 +75,24 @@ void Ball::Bounce(const GameActor& Paddle)
 
     SetLocation(Location);
     IncrementSpeed();
+
+    BounceEmitter->Spawn(GetLocation(), glm::vec3(Direction.x, 0.f, 0.f));
+}
+
+void Ball::Begin()
+{
+	GameActor::Begin();
+
+    constexpr float ParticleSpeed = 150.f;
+    constexpr float ParticleLife = 0.8f;
+    constexpr int SpawnAmount = 3;
+    constexpr int PoolCapacity = SpawnAmount * 4;
+
+    Base::SharedPtr BouncePattern = std::make_shared<ParticlePattern::Bounce>(ParticleSpeed, ParticleLife, SpawnAmount);
+    BounceEmitter = std::make_unique<Emitter>(
+        Assets::ParticleVertexShader, Assets::ParticleFragmentShader, Assets::BallSprite, PoolCapacity, BouncePattern, GetGame()->GetProjection()
+    );
+    BounceEmitter->SetParticleScale(7.f);
 }
 
 void Ball::Update(const float Delta)
@@ -111,12 +133,16 @@ void Ball::Update(const float Delta)
         Direction.y = -Direction.y;
 
         PlayHitSound();
+        BounceEmitter->Spawn(GetLocation(), glm::vec3(0.f, Direction.y, 0.f));
     }
 
     const glm::vec3 BallVelocity = (glm::normalize(Direction) * Speed) * Delta;
     Location += BallVelocity;
 
     SetLocation(Location);
+
+    BounceEmitter->Update(Delta, GetLocation(), Direction);
+    BounceEmitter->Render();
 }
 
 void Ball::Initialize()

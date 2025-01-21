@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameActor.h"
+#include "pk/Emitter.h"
 
 class Ball : public GameActor
 {
@@ -19,6 +20,7 @@ public:
 
 	void Bounce(const GameActor& Paddle);
 
+	virtual void Begin() override;
 	virtual void Update(const float Delta) override;
 
 private:
@@ -35,5 +37,7 @@ private:
 	float Speed;
 	float SpeedIncrement;
 	float MaxSpeed;
+
+	Emitter::UniquePtr BounceEmitter;
 };
 

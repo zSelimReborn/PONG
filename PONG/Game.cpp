@@ -44,8 +44,14 @@ void Game::Begin()
 	MainShader.Use();
 	MainShader.SetMatrix("projection", Projection);
 
+	constexpr float ParticleSpeed = 0.1f;
+	constexpr float ParticleLife = 0.5f;
+	constexpr int SpawnAmount = 2;
+	constexpr int EmitterPoolCapacity = 800;
+
+	ParticlePattern::Base::SharedPtr LinearParticlePattern = std::make_shared<ParticlePattern::Linear>(ParticleSpeed, ParticleLife, SpawnAmount);
 	BallEmitter = std::make_shared<Emitter>(Assets::ParticleVertexShader, Assets::ParticleFragmentShader, Assets::BallSprite, 
-		0.1f, 0.5f, 800, 2, Projection
+		EmitterPoolCapacity, LinearParticlePattern, Projection
 	);
 
 	SoundEngine::Get().Load(Assets::WinSound);
@@ -144,8 +150,6 @@ void Game::RenderGame() const
 {
 	RenderBallParticles();
 
-	MainShader.Use();
-
 	Render(PlayerOne);
 	Render(PlayerTwo);
 
@@ -201,6 +205,7 @@ void Game::RenderBallParticles() const
 
 void Game::Render(const GameActor& Actor) const
 {
+	MainShader.Use();
 	MainShader.SetColor("spriteColor", Colors::White);
 
 	glBindVertexArray(QuadId);

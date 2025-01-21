@@ -20,18 +20,73 @@ struct Particle
 	void Set(const glm::vec3& _Position, const glm::vec3& _Direction, const glm::vec4& _Color, const float _Life, const float Speed);
 };
 
+namespace ParticlePattern
+{
+	class Base
+	{
+	public:
+		typedef std::shared_ptr<Base> SharedPtr;
+
+		Base(bool _bLoop, const float _Speed, const float _Life, const int _SpawnAmount);
+
+		bool ShouldLoop() const;
+		float GetSpeed() const;
+		float GetLife() const;
+		int GetSpawnAmount() const;
+
+		virtual void Spawn(std::vector<Particle*>& Pool, int& LastInactive, const glm::vec3& Position, const glm::vec3& Direction);
+
+		virtual ~Base() = default;
+
+	protected:
+		static int NextInactive(std::vector<Particle*>& Pool, const int LastInactive);
+		void SpawnParticle(Particle* NewParticle, const glm::vec3& Position, const glm::vec3& Direction) const;
+
+	private:
+		bool bLoop;
+		float Speed;
+		float Life;
+		int SpawnAmount;
+	};
+
+	class Linear : public Base
+	{
+	public:
+		Linear(const float _Speed, const float _Life, int _SpawnAmount);
+		virtual void Spawn(std::vector<Particle*>& Pool, int& LastInactive, const glm::vec3& Position, const glm::vec3& Direction) override;
+
+		virtual ~Linear() override = default;
+	};
+
+	class Bounce : public Base
+	{
+	public:
+		Bounce(const float _Speed, const float _Life, int _SpawnAmount);
+		virtual void Spawn(std::vector<Particle*>& Pool, int& LastInactive, const glm::vec3& Position, const glm::vec3& Direction) override;
+
+		virtual ~Bounce() override = default;
+	};
+}
+
 class Emitter
 {
 public:
+	typedef std::unique_ptr<Emitter> UniquePtr;
+	typedef std::shared_ptr<Emitter> SharedPtr;
+
 	Emitter(const std::string& VertShader, const std::string& FragShader, 
-		const std::string& TexturePath, 
-		float _ParticleSpeed, float _ParticleLife, int _PoolCapacity, int _SpawnAmount, 
+		const std::string& TexturePath,
+		int _PoolCapacity, const ParticlePattern::Base::SharedPtr& _ParticlePattern,
 		const glm::mat4& _Projection
 	);
 
+	void Spawn(const glm::vec3& Position, const glm::vec3& Direction);
 	void Update(const float Delta, const glm::vec3& Position, const glm::vec3& Direction);
 	void Render() const;
 	void Reset();
+
+	void SetParticleScale(const float NewScale);
+	float GetParticleScale() const;
 
 	~Emitter();
 
@@ -39,19 +94,17 @@ private:
 	void PrepareRenderQuad();
 
 	void InitializePool();
-	int NextInactive() const;
-	void NewParticle(Particle* P, const glm::vec3& Position, const glm::vec3& Direction) const;
 
 	unsigned int QuadId;
+	float ParticleScale;
 	glm::mat4 RenderProjection;
 
 	std::vector<Particle*> Pool;
 	int LastInactive;
 	int PoolCapacity;
-	int SpawnAmount;
-	float ParticleSpeed;
-	float ParticleLife;
 
 	std::unique_ptr<Shader> ParticleShader;
 	std::unique_ptr<Texture> ParticleTexture;
+
+	ParticlePattern::Base::SharedPtr ParticlePattern;
 };
