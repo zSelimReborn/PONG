@@ -14,7 +14,7 @@ constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
 const std::string WINDOW_TITLE = "PONG";
 
-constexpr float PLAYER_SPEED = 400.f;
+constexpr float PLAYER_SPEED = 600.f;
 
 constexpr float BALL_BASE_SPEED = 300.f;
 constexpr float BALL_MAX_SPEED = 600.f;

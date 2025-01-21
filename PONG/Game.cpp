@@ -18,7 +18,7 @@ Game::Game(Window* _Window, const Transform& PlayerOneTransform, const Transform
            const float BallSpeedIncrement, const float BallMaxSpeed, const int _WinScore)
 		: PlayerOne(PlayerOneTransform, PlayerSpeed, GLFW_KEY_W, GLFW_KEY_S), PlayerTwo(PlayerTwoTransform, PlayerSpeed, GLFW_KEY_UP, GLFW_KEY_DOWN),
 			Ball(BallTransform, BallDirection, BallSpeed),
-			WindowPtr(_Window), Projection(0.f), PlayerOneScore(0), PlayerTwoScore(0), WinScore(_WinScore), State(GameState::MATCH)
+			WindowPtr(_Window), Projection(0.f), PlayerOneScore(0), PlayerTwoScore(0), WinScore(_WinScore), State(GameState::PAUSE)
 {
 	Projection = glm::ortho(0.f, static_cast<float>(GetScreenWidth()), static_cast<float>(GetScreenHeight()), 0.f, -1.0f, 1.0f);
 
@@ -73,9 +73,14 @@ void Game::Frame()
 
 	RenderGame();
 
-	if (State == GameState::WIN)
+	switch (State)
 	{
+	case GameState::PAUSE:
+		RenderPauseScreen();
+		break;
+	case GameState::WIN:
 		RenderWinScreen();
+		break;
 	}
 
 	WindowPtr->CloseFrame();
@@ -107,11 +112,18 @@ void Game::Input(const float Delta)
 		WindowPtr->Maximize();
 	}
 
-	if (WindowPtr->IsPressed(GLFW_KEY_SPACE) && State == GameState::WIN)
+	if (WindowPtr->IsPressed(GLFW_KEY_SPACE))
 	{
-		PlayerOneScore = 0;
-		PlayerTwoScore = 0;
-		State = GameState::MATCH;
+		if (State == GameState::WIN)
+		{
+			PlayerOneScore = 0;
+			PlayerTwoScore = 0;
+			State = GameState::MATCH;
+		}
+		else if (State == GameState::PAUSE)
+		{
+			State = GameState::MATCH;
+		}
 	}
 
 	if (State == GameState::MATCH)
@@ -177,6 +189,16 @@ void Game::RenderWinScreen() const
 	const glm::vec2 ScreenCenter(GetScreenCenter());
 	MainFont->Render(WinText, glm::vec2(ScreenCenter.x - 170.f, ScreenCenter.y - 75.f), 1.0f, Colors::White);
 	MainFont->Render(ReplayText, glm::vec2(ScreenCenter.x - 270.f, ScreenCenter.y - 25.f), 1.0f, Colors::White);
+}
+
+void Game::RenderPauseScreen() const
+{
+	const std::string TitleText = "PONG";
+	const std::string PauseText = "Press SPACE to START";
+
+	const glm::vec2 ScreenCenter(GetScreenCenter());
+	MainFont->Render(TitleText, glm::vec2(ScreenCenter.x - 35.f, ScreenCenter.y - 100.f), 1.0f, Colors::White);
+	MainFont->Render(PauseText, glm::vec2(ScreenCenter.x - 205.f, ScreenCenter.y - 25.f), 1.0f, Colors::White);
 }
 
 int Game::GetScreenWidth() const

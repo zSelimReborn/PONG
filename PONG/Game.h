@@ -55,6 +55,7 @@ private:
 	void RenderGame() const;
 	void RenderScore() const;
 	void RenderWinScreen() const;
+	void RenderPauseScreen() const;
 
 	void InitializeBricks();
 

@@ -93,7 +93,7 @@ void Ball::Begin()
     constexpr float TrailParticleSpeed = 0.1f;
     constexpr float TrailParticleLife = 0.5f;
     constexpr int TrailSpawnAmount = 2;
-    constexpr int TrailEmitterPoolCapacity = 800;
+    constexpr int TrailEmitterPoolCapacity = 1500;
 
     AssetManager& mAssetManager = AssetManager::Get();
 
