@@ -147,20 +147,19 @@ void ParticlePattern::Bounce::Spawn(std::vector<Particle*>& Pool, int& LastInact
 	}
 }
 
-Emitter::Emitter(const std::string& VertShader, const std::string& FragShader, const std::string& TexturePath, 
+Emitter::Emitter(const Shader::SharedPtr& _ParticleShader, const Texture::SharedPtr& _ParticleTexture,
 	int _PoolCapacity, const ParticlePattern::Base::SharedPtr& _ParticlePattern,
 	const glm::mat4& _Projection
 )
-	: QuadId(0), LastInactive(0),
-		PoolCapacity(_PoolCapacity), ParticlePattern(_ParticlePattern),
-		RenderProjection(_Projection), ParticleScale(5.0f)
+	: QuadId(0), ParticleScale(5.0f),
+		RenderProjection(_Projection), LastInactive(0), PoolCapacity(_PoolCapacity),
+		ParticleShader(_ParticleShader), ParticleTexture(_ParticleTexture), ParticlePattern(_ParticlePattern)
 {
-	ParticleShader = std::make_unique<Shader>();
-	ParticleShader->Compile(VertShader, FragShader);
-	ParticleShader->Use();
-	ParticleShader->SetMatrix("projection", RenderProjection);
-
-	ParticleTexture = std::make_unique<Texture>(TexturePath, GL_RGBA, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+	if (ParticleShader != nullptr)
+	{
+		ParticleShader->Use();
+		ParticleShader->SetMatrix("projection", RenderProjection);
+	}
 
 	PrepareRenderQuad();
 	InitializePool();

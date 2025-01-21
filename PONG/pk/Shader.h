@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <stdexcept>
 #include <glad/glad.h>
@@ -8,6 +9,8 @@
 class Shader
 {
 public:
+	typedef std::shared_ptr<Shader> SharedPtr;
+
 	Shader();
 	~Shader();
 

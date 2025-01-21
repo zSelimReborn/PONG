@@ -12,7 +12,7 @@ class Window;
 class Font;
 class Emitter;
 
-enum class GameState
+enum class GameState : uint8_t
 {
 	MATCH,
 	WIN,
@@ -47,6 +47,7 @@ public:
 	void IncrementScore(bool bPlayerOneScored);
 
 private:
+	void LoadAssets() const;
 	void UpdateDelta();
 	void Update(const float Delta);
 	void Input(const float Delta);
@@ -71,7 +72,7 @@ private:
 	Window* WindowPtr;
 
 	glm::mat4 Projection;
-	Shader MainShader;
+	std::shared_ptr<Shader> MainShader;
 	unsigned int QuadId;
 
 	float CurrentTime;
@@ -82,7 +83,7 @@ private:
 	int PlayerTwoScore;
 	int WinScore;
 
-	std::unique_ptr<Font> MainFont;
+	std::shared_ptr<Font> MainFont;
 
 	GameState State;
 };

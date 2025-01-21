@@ -6,8 +6,8 @@
 #include <memory>
 #include <string>
 
-class Shader;
-class Texture;
+#include "Shader.h"
+#include "Texture.h"
 
 struct Particle
 {
@@ -74,8 +74,8 @@ public:
 	typedef std::unique_ptr<Emitter> UniquePtr;
 	typedef std::shared_ptr<Emitter> SharedPtr;
 
-	Emitter(const std::string& VertShader, const std::string& FragShader, 
-		const std::string& TexturePath,
+	Emitter(const Shader::SharedPtr& _ParticleShader ,
+		const Texture::SharedPtr& _ParticleTexture,
 		int _PoolCapacity, const ParticlePattern::Base::SharedPtr& _ParticlePattern,
 		const glm::mat4& _Projection
 	);
@@ -103,8 +103,8 @@ private:
 	int LastInactive;
 	int PoolCapacity;
 
-	std::unique_ptr<Shader> ParticleShader;
-	std::unique_ptr<Texture> ParticleTexture;
+	Shader::SharedPtr ParticleShader;
+	Texture::SharedPtr ParticleTexture;
 
 	ParticlePattern::Base::SharedPtr ParticlePattern;
 };

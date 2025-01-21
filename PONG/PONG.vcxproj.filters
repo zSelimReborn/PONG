@@ -57,6 +57,9 @@
     <ClCompile Include="pk\SoundEngine.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="pk\AssetManager.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pk\Common.h">
@@ -93,6 +96,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="pk\SoundEngine.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="pk\AssetManager.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>

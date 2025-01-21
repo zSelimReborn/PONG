@@ -57,9 +57,9 @@ void GameActor::SetGame(Game* _Game)
 	mGame = _Game;
 }
 
-void GameActor::SetTexture(const std::string& Path)
+void GameActor::SetTexture(const Texture::SharedPtr& NewTexture)
 {
-	mTexture = std::make_shared<Texture>(Path, GL_RGBA, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+	mTexture = NewTexture;
 }
 
 Transform GameActor::GetTransform() const

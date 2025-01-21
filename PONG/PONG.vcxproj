@@ -143,6 +143,7 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="image_loader.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="pk\AssetManager.cpp" />
     <ClCompile Include="pk\Common.cpp" />
     <ClCompile Include="pk\Emitter.cpp" />
     <ClCompile Include="pk\Font.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="Ball.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameActor.h" />
+    <ClInclude Include="pk\AssetManager.h" />
     <ClInclude Include="pk\Common.h" />
     <ClInclude Include="pk\Emitter.h" />
     <ClInclude Include="pk\Font.h" />

@@ -4,9 +4,10 @@
 #include <memory>
 #include <string>
 
+#include "pk/Texture.h"
+
 class Window;
 class Game;
-class Texture;
 
 struct Transform
 {
@@ -32,13 +33,11 @@ struct BoundingBox
 class GameActor
 {
 public:
-	typedef std::shared_ptr<Texture> TexturePtr;
-
 	GameActor(const Transform& _Transform);
 	GameActor(const glm::vec3& _Location, const glm::vec3 _Size);
 
 	void SetGame(Game* _Game);
-	void SetTexture(const std::string& Path);
+	void SetTexture(const Texture::SharedPtr& NewTexture);
 
 	Transform GetTransform() const;
 	glm::vec3 GetLocation() const;
@@ -68,7 +67,7 @@ private:
 	// That would cause a copy/assignment and would violate the purpose of unique...
 	// GameActor would have copy constructor and assignment operator marked as delete
 	// I'm tired
-	TexturePtr mTexture;
+	Texture::SharedPtr mTexture;
 	Game* mGame;
 };
 

@@ -10,6 +10,7 @@
 #include "pk/Font.h"
 #include "pk/Emitter.h"
 #include "pk/SoundEngine.h"
+#include "pk/AssetManager.h"
 #include "Assets.h"
 
 Game::Game(Window* _Window, const Transform& PlayerOneTransform, const Transform& PlayerTwoTransform,
@@ -19,30 +20,33 @@ Game::Game(Window* _Window, const Transform& PlayerOneTransform, const Transform
 			Ball(BallTransform, BallDirection, BallSpeed),
 			WindowPtr(_Window), Projection(0.f), PlayerOneScore(0), PlayerTwoScore(0), WinScore(_WinScore), State(GameState::MATCH)
 {
+	Projection = glm::ortho(0.f, static_cast<float>(GetScreenWidth()), static_cast<float>(GetScreenHeight()), 0.f, -1.0f, 1.0f);
+
 	PlayerOne.SetGame(this);
 	PlayerTwo.SetGame(this);
 	Ball.SetGame(this);
 
 	Ball.SetSpeedIncrement(BallSpeedIncrement);
 	Ball.SetMaxSpeed(BallMaxSpeed);
-
-	Projection = glm::ortho(0.f, static_cast<float>(GetScreenWidth()), static_cast<float>(GetScreenHeight()), 0.f, -1.0f, 1.0f);
 }
 
 void Game::Begin()
 {
-	PrepareRenderQuad();
+	LoadAssets();
+	AssetManager& mAssetManager = AssetManager::Get();
 
-	PlayerOne.SetTexture(Assets::FirstPaddleSprite);
-	PlayerTwo.SetTexture(Assets::SecondPaddleSprite);
-	Ball.SetTexture(Assets::BallSprite);
+	MainShader = mAssetManager.GetShader(Assets::MainShaderName);
+	MainShader->Use();
+	MainShader->SetMatrix("projection", Projection);
 
-	MainFont = std::make_unique<Font>(Assets::FontPath, "Exan", Projection, Assets::TextVertexShader, Assets::TextFragmentShader);
+	MainFont = mAssetManager.GetFont(Assets::FontName);
 	MainFont->Load(36);
 
-	MainShader.Compile(Assets::MainVertexShader, Assets::MainFragmentShader);
-	MainShader.Use();
-	MainShader.SetMatrix("projection", Projection);
+	PrepareRenderQuad();
+
+	PlayerOne.SetTexture(mAssetManager.GetTexture(Assets::FirstPaddleSpriteName));
+	PlayerTwo.SetTexture(mAssetManager.GetTexture(Assets::SecondPaddleSpriteName));
+	Ball.SetTexture(mAssetManager.GetTexture(Assets::BallSpriteName));
 
 	constexpr float ParticleSpeed = 0.1f;
 	constexpr float ParticleLife = 0.5f;
@@ -50,7 +54,7 @@ void Game::Begin()
 	constexpr int EmitterPoolCapacity = 800;
 
 	ParticlePattern::Base::SharedPtr LinearParticlePattern = std::make_shared<ParticlePattern::Linear>(ParticleSpeed, ParticleLife, SpawnAmount);
-	BallEmitter = std::make_shared<Emitter>(Assets::ParticleVertexShader, Assets::ParticleFragmentShader, Assets::BallSprite, 
+	BallEmitter = std::make_shared<Emitter>(mAssetManager.GetShader(Assets::ParticleShaderName), mAssetManager.GetTexture(Assets::BallSpriteName), 
 		EmitterPoolCapacity, LinearParticlePattern, Projection
 	);
 
@@ -205,11 +209,11 @@ void Game::RenderBallParticles() const
 
 void Game::Render(const GameActor& Actor) const
 {
-	MainShader.Use();
-	MainShader.SetColor("spriteColor", Colors::White);
+	MainShader->Use();
+	MainShader->SetColor("spriteColor", Colors::White);
 
 	glBindVertexArray(QuadId);
-	MainShader.SetMatrix("model", Actor.GetRenderModel());
+	MainShader->SetMatrix("model", Actor.GetRenderModel());
 
 	glActiveTexture(GL_TEXTURE0);
 	Actor.BindTexture();
@@ -255,6 +259,32 @@ void Game::IncrementScore(bool bPlayerOneScored)
 		State = GameState::WIN;
 		SoundEngine::Get().Play(Assets::WinSound, 1.f);
 	}
+}
+
+void Game::LoadAssets() const
+{
+	AssetManager& mAssetManager = AssetManager::Get();
+
+	mAssetManager.LoadShader(Assets::ParticleShaderName, Assets::ParticleVertexShader, Assets::ParticleFragmentShader);
+	mAssetManager.LoadShader(Assets::MainShaderName, Assets::MainVertexShader, Assets::MainFragmentShader);
+	mAssetManager.LoadShader(Assets::TextShaderName, Assets::TextVertexShader, Assets::TextFragmentShader);
+	mAssetManager.LoadFont(Assets::FontName, Assets::FontPath, Assets::TextShaderName, Projection);
+	mAssetManager.LoadTexture(Assets::FirstPaddleSpriteName,
+		Assets::FirstPaddleSprite,
+		GL_RGBA, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR
+	);
+	mAssetManager.LoadTexture(Assets::SecondPaddleSpriteName,
+		Assets::SecondPaddleSprite,
+		GL_RGBA, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR
+	);
+	mAssetManager.LoadTexture(Assets::BallSpriteName,
+		Assets::BallSprite,
+		GL_RGBA, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR
+	);
+	mAssetManager.LoadTexture(Assets::BrickSpriteName,
+		Assets::BrickSprite,
+		GL_RGBA, GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR
+	);
 }
 
 void Game::UpdateDelta()
@@ -306,7 +336,7 @@ void Game::InitializeBricks()
 		CurrentBrickPos.y += (i * BrickSize.y) + (i * BrickSpan);
 
 		GameActor Brick(CurrentBrickPos, BrickSize);
-		Brick.SetTexture(Assets::BrickSprite);
+		Brick.SetTexture(AssetManager::Get().GetTexture(Assets::BrickSpriteName));
 		Bricks.push_back(Brick);
 	}
 }

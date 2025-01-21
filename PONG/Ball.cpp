@@ -4,6 +4,7 @@
 
 #include "Assets.h"
 #include "Game.h"
+#include "pk/AssetManager.h"
 #include "pk/Common.h"
 #include "pk/SoundEngine.h"
 
@@ -88,9 +89,10 @@ void Ball::Begin()
     constexpr int SpawnAmount = 3;
     constexpr int PoolCapacity = SpawnAmount * 4;
 
+    AssetManager& mAssetManager = AssetManager::Get();
     Base::SharedPtr BouncePattern = std::make_shared<ParticlePattern::Bounce>(ParticleSpeed, ParticleLife, SpawnAmount);
     BounceEmitter = std::make_unique<Emitter>(
-        Assets::ParticleVertexShader, Assets::ParticleFragmentShader, Assets::BallSprite, PoolCapacity, BouncePattern, GetGame()->GetProjection()
+        mAssetManager.GetShader(Assets::ParticleShaderName), mAssetManager.GetTexture(Assets::BallSpriteName), PoolCapacity, BouncePattern, GetGame()->GetProjection()
     );
     BounceEmitter->SetParticleScale(7.f);
 }

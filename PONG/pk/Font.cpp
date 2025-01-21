@@ -3,11 +3,14 @@
 
 #include <glad/glad.h>
 
-Font::Font(const std::string& _Path, const std::string& _Name, const glm::mat4& _Projection, const std::string& VertShader, const std::string& FragShader)
-	: Path(_Path), Name(_Name), Size(14), Projection(_Projection)
+Font::Font(const std::string& _Path, const std::string& _Name, const glm::mat4& _Projection, const Shader::SharedPtr& _TextShader)
+	: Path(_Path), Name(_Name), Size(14), Projection(_Projection), TextShader(_TextShader)
 {
-    TextShader = std::make_unique<Shader>();
-    TextShader->Compile(VertShader, FragShader);
+    if (TextShader == nullptr)
+    {
+        throw LoadError("ERROR::FONT TextShader empty");
+    }
+
     TextShader->Use();
     TextShader->SetMatrix("projection", Projection);
 

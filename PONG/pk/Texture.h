@@ -1,11 +1,14 @@
 #pragma once
 
+#include <memory>
 #include <stdexcept>
 #include <string>
 
 class Texture
 {
 public:
+	typedef std::shared_ptr<Texture> SharedPtr;
+
 	Texture(const std::string& _Path, int _Format, int _WrapS, int _WrapT, int _MinFilter, int _MaxFilter);
 
 	unsigned int GetId() const;

@@ -5,11 +5,11 @@
 #include <map>
 #include <memory>
 
+#include "Shader.h"
+
 #include <glm/glm.hpp>
 #include <ft2build.h>
 #include FT_FREETYPE_H
-
-class Shader;
 
 struct Character {
 	unsigned int TextureID;  // ID handle of the glyph texture
@@ -21,7 +21,9 @@ struct Character {
 class Font
 {
 public:
-	Font(const std::string& _Path, const std::string& _Name, const glm::mat4& _Projection, const std::string& VertShader, const std::string& FragShader);
+	typedef std::shared_ptr<Font> SharedPtr;
+
+	Font(const std::string& _Path, const std::string& _Name, const glm::mat4& _Projection, const Shader::SharedPtr& _TextShader);
 
 	std::string GetName() const;
 	std::string GetPath() const;
@@ -45,7 +47,7 @@ private:
 
 	std::map<char, Character> Characters;
 
-	std::unique_ptr<Shader> TextShader;
+	Shader::SharedPtr TextShader;
 	unsigned int QuadId;
 	unsigned int BufferId;
 
