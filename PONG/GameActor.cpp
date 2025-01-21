@@ -3,6 +3,9 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Assets.h"
+#include "pk/AssetManager.h"
+#include "pk/Renderer.h"
 #include "pk/Texture.h"
 
 Transform::Transform()
@@ -43,12 +46,12 @@ float BoundingBox::Left() const
 }
 
 GameActor::GameActor(const ::Transform& _Transform)
-	: mTransform(_Transform)
+	: mTransform(_Transform), Color(1.f, 1.f, 1.f)
 {
 }
 
 GameActor::GameActor(const glm::vec3& _Location, const glm::vec3 _Size)
-	: mTransform(_Location, _Size)
+	: mTransform(_Location, _Size), Color(1.f, 1.f, 1.f)
 {
 }
 
@@ -75,6 +78,16 @@ glm::vec3 GameActor::GetLocation() const
 glm::vec3 GameActor::GetSize() const
 {
 	return mTransform.Size;
+}
+
+void GameActor::SetColor(const glm::vec3& _Color)
+{
+	Color = _Color;
+}
+
+glm::vec3 GameActor::GetColor() const
+{
+	return Color;
 }
 
 void GameActor::Move(const glm::vec3& Delta)
@@ -134,6 +147,16 @@ void GameActor::Update(const float Delta)
 
 void GameActor::Input(const Window& Window, const float Delta)
 {
+}
+
+void GameActor::Render() const
+{
+	Renderer::Get().RenderSprite(
+		AssetManager::Get().GetShader(Assets::MainShaderName),
+		mTexture,
+		GetRenderModel(),
+		Color
+	);
 }
 
 Game* GameActor::GetGame() const

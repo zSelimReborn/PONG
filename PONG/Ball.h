@@ -22,6 +22,7 @@ public:
 
 	virtual void Begin() override;
 	virtual void Update(const float Delta) override;
+	virtual void Render() const override;
 
 private:
 	void Initialize();
@@ -38,6 +39,7 @@ private:
 	float SpeedIncrement;
 	float MaxSpeed;
 
+	Emitter::UniquePtr TrailEmitter;
 	Emitter::UniquePtr BounceEmitter;
 };
 

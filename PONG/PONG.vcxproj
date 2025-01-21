@@ -147,6 +147,7 @@
     <ClCompile Include="pk\Common.cpp" />
     <ClCompile Include="pk\Emitter.cpp" />
     <ClCompile Include="pk\Font.cpp" />
+    <ClCompile Include="pk\Renderer.cpp" />
     <ClCompile Include="pk\Shader.cpp" />
     <ClCompile Include="pk\SoundEngine.cpp" />
     <ClCompile Include="pk\Texture.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="pk\Common.h" />
     <ClInclude Include="pk\Emitter.h" />
     <ClInclude Include="pk\Font.h" />
+    <ClInclude Include="pk\Renderer.h" />
     <ClInclude Include="pk\Shader.h" />
     <ClInclude Include="pk\SoundEngine.h" />
     <ClInclude Include="pk\Texture.h" />

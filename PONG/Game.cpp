@@ -42,21 +42,9 @@ void Game::Begin()
 	MainFont = mAssetManager.GetFont(Assets::FontName);
 	MainFont->Load(36);
 
-	PrepareRenderQuad();
-
 	PlayerOne.SetTexture(mAssetManager.GetTexture(Assets::FirstPaddleSpriteName));
 	PlayerTwo.SetTexture(mAssetManager.GetTexture(Assets::SecondPaddleSpriteName));
 	Ball.SetTexture(mAssetManager.GetTexture(Assets::BallSpriteName));
-
-	constexpr float ParticleSpeed = 0.1f;
-	constexpr float ParticleLife = 0.5f;
-	constexpr int SpawnAmount = 2;
-	constexpr int EmitterPoolCapacity = 800;
-
-	ParticlePattern::Base::SharedPtr LinearParticlePattern = std::make_shared<ParticlePattern::Linear>(ParticleSpeed, ParticleLife, SpawnAmount);
-	BallEmitter = std::make_shared<Emitter>(mAssetManager.GetShader(Assets::ParticleShaderName), mAssetManager.GetTexture(Assets::BallSpriteName), 
-		EmitterPoolCapacity, LinearParticlePattern, Projection
-	);
 
 	SoundEngine::Get().Load(Assets::WinSound);
 
@@ -104,8 +92,6 @@ void Game::Update(const float Delta)
 	PlayerTwo.Update(Delta);
 	Ball.Update(Delta);
 
-	BallEmitter->Update(Delta, Ball.GetLocation(), -Ball.GetDirection());
-
 	CheckCollisions(Delta);
 }
 
@@ -126,8 +112,6 @@ void Game::Input(const float Delta)
 		PlayerOneScore = 0;
 		PlayerTwoScore = 0;
 		State = GameState::MATCH;
-
-		BallEmitter->Reset();
 	}
 
 	if (State == GameState::MATCH)
@@ -152,18 +136,16 @@ void Game::CheckCollisions(const float Delta)
 
 void Game::RenderGame() const
 {
-	RenderBallParticles();
-
-	Render(PlayerOne);
-	Render(PlayerTwo);
+	PlayerOne.Render();
+	PlayerTwo.Render();
 
 	if (State == GameState::MATCH)
 	{
-		Render(Ball);
+		Ball.Render();
 
 		for (const GameActor& Brick : Bricks)
 		{
-			Render(Brick);
+			Brick.Render();
 		}
 	}
 
@@ -195,32 +177,6 @@ void Game::RenderWinScreen() const
 	const glm::vec2 ScreenCenter(GetScreenCenter());
 	MainFont->Render(WinText, glm::vec2(ScreenCenter.x - 170.f, ScreenCenter.y - 75.f), 1.0f, Colors::White);
 	MainFont->Render(ReplayText, glm::vec2(ScreenCenter.x - 270.f, ScreenCenter.y - 25.f), 1.0f, Colors::White);
-}
-
-void Game::RenderBallParticles() const
-{
-	if (State == GameState::MATCH)
-	{
-		WindowPtr->SetBlendFunction(GL_SRC_ALPHA, GL_ONE);
-		BallEmitter->Render();
-		WindowPtr->SetBlendFunction(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-}
-
-void Game::Render(const GameActor& Actor) const
-{
-	MainShader->Use();
-	MainShader->SetColor("spriteColor", Colors::White);
-
-	glBindVertexArray(QuadId);
-	MainShader->SetMatrix("model", Actor.GetRenderModel());
-
-	glActiveTexture(GL_TEXTURE0);
-	Actor.BindTexture();
-
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindVertexArray(0);
-	Actor.UnBindTexture();
 }
 
 int Game::GetScreenWidth() const
@@ -292,33 +248,6 @@ void Game::UpdateDelta()
 	CurrentTime = static_cast<float>(glfwGetTime());
 	Delta = CurrentTime - OldTime;
 	OldTime = CurrentTime;
-}
-
-void Game::PrepareRenderQuad()
-{
-	float VertexData[] = {
-		-0.5f, 0.5f, 0.f, 1.f,
-		-0.5f, -0.5f, 0.f, 0.f,
-		0.5f, -0.5f, 1.f, 0.f,
-		-0.5f, 0.5f, 0.f, 1.f,
-		0.5f, 0.5f, 1.f, 1.f,
-		0.5f, -0.5f, 1.f, 0.f
-	};
-
-	unsigned int VAO = 0;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData), VertexData, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	QuadId = VAO;
-
 }
 
 void Game::InitializeBricks()

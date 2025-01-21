@@ -84,17 +84,29 @@ void Ball::Begin()
 {
 	GameActor::Begin();
 
-    constexpr float ParticleSpeed = 150.f;
-    constexpr float ParticleLife = 0.8f;
-    constexpr int SpawnAmount = 3;
-    constexpr int PoolCapacity = SpawnAmount * 4;
+    constexpr float BounceParticleSpeed = 150.f;
+    constexpr float BounceParticleLife = 0.8f;
+    constexpr int BounceSpawnAmount = 3;
+    constexpr int BouncePoolCapacity = BounceSpawnAmount * 4;
+    constexpr float BounceParticleScale = 7.f;
+
+    constexpr float TrailParticleSpeed = 0.1f;
+    constexpr float TrailParticleLife = 0.5f;
+    constexpr int TrailSpawnAmount = 2;
+    constexpr int TrailEmitterPoolCapacity = 800;
 
     AssetManager& mAssetManager = AssetManager::Get();
-    Base::SharedPtr BouncePattern = std::make_shared<ParticlePattern::Bounce>(ParticleSpeed, ParticleLife, SpawnAmount);
-    BounceEmitter = std::make_unique<Emitter>(
-        mAssetManager.GetShader(Assets::ParticleShaderName), mAssetManager.GetTexture(Assets::BallSpriteName), PoolCapacity, BouncePattern, GetGame()->GetProjection()
+
+    Base::SharedPtr LinearParticlePattern = std::make_shared<Linear>(TrailParticleSpeed, TrailParticleLife, TrailSpawnAmount);
+    TrailEmitter = std::make_unique<Emitter>(mAssetManager.GetShader(Assets::ParticleShaderName), mAssetManager.GetTexture(Assets::BallSpriteName),
+        TrailEmitterPoolCapacity, LinearParticlePattern, GetGame()->GetProjection()
     );
-    BounceEmitter->SetParticleScale(7.f);
+
+    Base::SharedPtr BouncePattern = std::make_shared<ParticlePattern::Bounce>(BounceParticleSpeed, BounceParticleLife, BounceSpawnAmount);
+    BounceEmitter = std::make_unique<Emitter>(
+        mAssetManager.GetShader(Assets::ParticleShaderName), mAssetManager.GetTexture(Assets::BallSpriteName), BouncePoolCapacity, BouncePattern, GetGame()->GetProjection()
+    );
+    BounceEmitter->SetParticleScale(BounceParticleScale);
 }
 
 void Ball::Update(const float Delta)
@@ -143,8 +155,18 @@ void Ball::Update(const float Delta)
 
     SetLocation(Location);
 
+    TrailEmitter->Update(Delta, GetLocation(), -Direction);
     BounceEmitter->Update(Delta, GetLocation(), Direction);
+}
+
+void Ball::Render() const
+{
+	GameActor::Render();
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    TrailEmitter->Render();
     BounceEmitter->Render();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Ball::Initialize()

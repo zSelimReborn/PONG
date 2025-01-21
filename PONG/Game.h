@@ -10,7 +10,6 @@
 
 class Window;
 class Font;
-class Emitter;
 
 enum class GameState : uint8_t
 {
@@ -56,10 +55,6 @@ private:
 	void RenderGame() const;
 	void RenderScore() const;
 	void RenderWinScreen() const;
-	void RenderBallParticles() const;
-	void Render(const GameActor& Actor) const;
-
-	void PrepareRenderQuad();
 
 	void InitializeBricks();
 
@@ -67,13 +62,11 @@ private:
 	Player PlayerTwo;
 	Ball Ball;
 	std::vector<GameActor> Bricks;
-	std::shared_ptr<Emitter> BallEmitter;
 
 	Window* WindowPtr;
 
 	glm::mat4 Projection;
 	std::shared_ptr<Shader> MainShader;
-	unsigned int QuadId;
 
 	float CurrentTime;
 	float OldTime;

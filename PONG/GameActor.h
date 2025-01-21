@@ -42,6 +42,8 @@ public:
 	Transform GetTransform() const;
 	glm::vec3 GetLocation() const;
 	glm::vec3 GetSize() const;
+	void SetColor(const glm::vec3& _Color);
+	glm::vec3 GetColor() const;
 	void Move(const glm::vec3& Delta);
 
 	glm::mat4 GetRenderModel() const;
@@ -54,6 +56,7 @@ public:
 	virtual void Begin();
 	virtual void Update(const float Delta);
 	virtual void Input(const Window& Window, const float Delta);
+	virtual void Render() const;
 
 	virtual ~GameActor() = default;
 
@@ -63,6 +66,7 @@ protected:
 
 private:
 	Transform mTransform;
+	glm::vec3 Color;
 	// Impossible to use std::unique_ptr because GameActor is used in vectors
 	// That would cause a copy/assignment and would violate the purpose of unique...
 	// GameActor would have copy constructor and assignment operator marked as delete
