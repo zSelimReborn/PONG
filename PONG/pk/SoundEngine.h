@@ -3,22 +3,15 @@
 #include <fmod/fmod.hpp>
 
 #include <map>
-#include <vector>
 #include <string>
-
-struct QueuedSound
-{
-	FMOD::Sound* SoundObject;
-	FMOD::Channel* Channel;
-
-	QueuedSound();
-	QueuedSound(FMOD::Sound* _SoundObject, FMOD::Channel* _Channel);
-};
 
 class SoundEngine
 {
 public:
-	typedef std::vector<QueuedSound>::iterator QueueIterator;
+	typedef std::map<std::string, FMOD::Sound*> SoundsMap;
+	typedef std::pair<std::string, FMOD::Sound*> SoundPair;
+	typedef std::map<int, FMOD::Channel*> ChannelsMap;
+	typedef std::pair<int, FMOD::Channel*> ChannelPair;
 
 	static SoundEngine& Get()
 	{
@@ -27,7 +20,10 @@ public:
 	}
 
 	void Load(const std::string& SoundPath);
-	bool Play(const std::string& SoundPath);
+	int Play(const std::string& SoundPath, const float Volume);
+	void SetChannelVolume(const int ChannelId, const float NewVolume);
+	void SetChannelPitch(const int ChannelId, const float Pitch);
+
 	FMOD_RESULT GetLastResult() const;
 
 	void Update(const float Delta);
@@ -44,6 +40,7 @@ private:
 	FMOD::System* System;
 	FMOD_RESULT LastResult;
 
-	std::map<std::string, FMOD::Sound*> LoadedSounds;
-	std::vector<QueuedSound> Queue;
+	SoundsMap LoadedSounds;
+	ChannelsMap ActiveChannels;
+	int NextChannelId;
 };

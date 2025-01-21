@@ -12,6 +12,7 @@
 
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
+const std::string WINDOW_TITLE = "PONG";
 
 constexpr float PLAYER_SPEED = 400.f;
 
@@ -23,7 +24,7 @@ constexpr int WIN_SCORE = 5;
 
 int main(int argc, char** argv)
 {
-    Window w(WINDOW_WIDTH, WINDOW_HEIGHT, "PONG");
+    Window w(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE);
 
     glm::vec2 ScreenCenter = w.GetScreenCenter();
     glm::vec3 PlayerOnePos(ScreenCenter.x - 350.f, ScreenCenter.y, 0.f);

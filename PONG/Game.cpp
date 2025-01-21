@@ -253,7 +253,7 @@ void Game::IncrementScore(bool bPlayerOneScored)
 	if (PlayerOneScore >= WinScore || PlayerTwoScore >= WinScore)
 	{
 		State = GameState::WIN;
-		SoundEngine::Get().Play(Assets::WinSound);
+		SoundEngine::Get().Play(Assets::WinSound, 1.f);
 	}
 }
 

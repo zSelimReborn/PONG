@@ -1,16 +1,9 @@
 #include "SoundEngine.h"
 
 #include <iostream>
+#include <vector>
 
-QueuedSound::QueuedSound()
-	: SoundObject(nullptr), Channel(nullptr)
-{
-}
-
-QueuedSound::QueuedSound(FMOD::Sound* _SoundObject, FMOD::Channel* _Channel)
-	: SoundObject(_SoundObject), Channel(_Channel)
-{
-}
+#include "Common.h"
 
 void SoundEngine::Load(const std::string& SoundPath)
 {
@@ -34,7 +27,7 @@ void SoundEngine::Load(const std::string& SoundPath)
 	LoadedSounds.insert(std::pair<std::string, FMOD::Sound*>(SoundPath, SoundObject));
 }
 
-bool SoundEngine::Play(const std::string& SoundPath)
+int SoundEngine::Play(const std::string& SoundPath, const float Volume)
 {
 	if (!System)
 	{
@@ -46,16 +39,39 @@ bool SoundEngine::Play(const std::string& SoundPath)
 		Load(SoundPath);
 	}
 
+	const float ActualVolume = Math::Clamp(Volume, 0.f, 1.f);
 	FMOD::Sound* SoundObject = LoadedSounds[SoundPath];
 	FMOD::Channel* Channel = nullptr;
 	LastResult = System->playSound(SoundObject, nullptr, false, &Channel);
 	if (LastResult == FMOD_OK)
 	{
-		Queue.emplace_back(SoundObject, Channel);
+		Channel->setVolume(ActualVolume);
+		ActiveChannels.insert(ChannelPair(NextChannelId++, Channel));
 		return true;
 	}
 
 	return false;
+}
+
+void SoundEngine::SetChannelVolume(const int ChannelId, const float NewVolume)
+{
+	if (ActiveChannels.count(ChannelId) <= 0)
+	{
+		return;
+	}
+
+	const float ActualVolume = Math::Clamp(NewVolume, 0.f, 1.f);
+	ActiveChannels[ChannelId]->setVolume(ActualVolume);
+}
+
+void SoundEngine::SetChannelPitch(const int ChannelId, const float Pitch)
+{
+	if (ActiveChannels.count(ChannelId) <= 0)
+	{
+		return;
+	}
+
+	ActiveChannels[ChannelId]->setPitch(Pitch);
 }
 
 FMOD_RESULT SoundEngine::GetLastResult() const
@@ -65,21 +81,21 @@ FMOD_RESULT SoundEngine::GetLastResult() const
 
 void SoundEngine::Update(const float Delta)
 {
-	std::vector<QueueIterator> StoppedSounds;
+	std::vector<ChannelsMap::iterator> StoppedSounds;
 
-	for (QueueIterator It = Queue.begin(); It != Queue.end(); ++It)
+	for (ChannelsMap::iterator It = ActiveChannels.begin(), End = ActiveChannels.end(); It != End; ++It)
 	{
 		bool bIsPlaying = false;
-		It->Channel->isPlaying(&bIsPlaying);
+		It->second->isPlaying(&bIsPlaying);
 		if (!bIsPlaying)
 		{
 			StoppedSounds.push_back(It);
 		}
 	}
 
-	for (const QueueIterator& It : StoppedSounds)
+	for (ChannelsMap::iterator& It : StoppedSounds)
 	{
-		Queue.erase(It);
+		ActiveChannels.erase(It);
 	}
 
 	System->update();
@@ -91,6 +107,7 @@ SoundEngine::~SoundEngine()
 }
 
 SoundEngine::SoundEngine()
+	: NextChannelId(0)
 {
 	Initialize();
 }

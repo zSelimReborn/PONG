@@ -116,7 +116,7 @@ void Ball::Update(const float Delta)
 
         IncrementScore(bPlayerOneScored);
         Reset();
-        SoundEngine::Get().Play(Assets::GoalSound);
+        SoundEngine::Get().Play(Assets::GoalSound, 1.f);
 
         const float x = (bPlayerOneScored) ? 1.f : -1.f;
         Direction = glm::vec3(x, 0.8f, 0.f);
@@ -171,5 +171,5 @@ void Ball::IncrementSpeed()
 
 void Ball::PlayHitSound()
 {
-    SoundEngine::Get().Play(Assets::PongSound);
+    const int Channel = SoundEngine::Get().Play(Assets::PongSound, 0.05f);
 }
