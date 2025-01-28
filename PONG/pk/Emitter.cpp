@@ -233,9 +233,9 @@ void Emitter::Render() const
 
 void Emitter::Reset()
 {
-	for (int i = 0; i < Pool.size(); ++i)
+	for (Particle* mParticle : Pool)
 	{
-		Pool[i]->Life = 0.f;
+		mParticle->Life = 0.f;
 	}
 
 	LastInactive = 0;

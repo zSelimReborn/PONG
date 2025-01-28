@@ -181,6 +181,16 @@ void Ball::Reset()
 
     SetLocation(glm::vec3(ScreenCenter.x, ScreenCenter.y, 1.f));
     Speed = BaseSpeed;
+
+    if (TrailEmitter != nullptr)
+    {
+        TrailEmitter->Reset();
+    }
+
+    if (BounceEmitter != nullptr)
+    {
+        BounceEmitter->Reset();
+    }
 }
 
 void Ball::IncrementScore(bool bPlayerOne) const
